@@ -1,33 +1,31 @@
-# Codebase for the paper "Measuring Faithfulness of Chains of Thought by Unlearning Reasoning Steps"
+# Reproducing FUR: A Closer Look at Parametric Faithfulness
 
-Preprint: Tutek, M., Chaleshtori, F. H., Marasović, A., & Belinkov, Y. (2025). Measuring Faithfulness of Chains of Thought by Unlearning Reasoning Steps. [[arXiv]](https://arxiv.org/abs/2502.14829)
+## 📖 About the Project
 
-![Faithfulness by Unlearning Reasoning Steps](figures/fig1_v2.png "Faithfulness by Unlearning Reasoning Steps")
+This project is a group assignment for the [NLP & LLM course (Spring 2026) ](https://github.com/baojian/llm-26) .
 
-Codebase is given as-is, instructions pending.
-Main file for running experiments is `unlearn.py`. The NPO method has been adapted from the [original repository](https://github.com/licong-lin/negative-preference-optimization).
+This project aims to conduct an in-depth investigation into parametric faithfulness in the reasoning steps of large language model Chain of Thought (CoT). We primarily focus on the FUR (Faithfulness by Unlearning Reasoning steps) method proposed by [Tutek et al. (2025)  ](https://aclanthology.org/2025.emnlp-main.504.pdf), and our core work is divided into the following two parts:
 
-Sample run script: `python unlearn.py --model_name meta-llama/Llama-3.2-3B-Instruct --strategy sentencize --stepwise --dataset sqa --lr 3e-05 --pos --ff2 --method npo_KL`
+* **Reproduction**：Reproduce the core workflow and key metrics of FUR on scaled-down $2\times2$ model-dataset subsets (Phi-3-mini / LLaMA-3.2-3B and OpenBookQA / StrategyQA).
+* **Extension**：Conduct an in-depth investigation of the loss function for FUR, including an analysis of how the weight (𝜆) for regularization affects model performance, as well as an attempt to replace the original approach with alternative anti-supervised learning objectives (such as SimNPO or Gradient Ascent) to verify the robustness of the original method.
 
-## Paper graphs, result files and analysis notebooks
+## 🔗 Documents & Links
 
-To recompute results, you need final & ablation result files (`results`,`ablations`) which are too large to share via git. Please send an email to me [\[here\]](mailto:martin.tutek@gmail.com) and I'll share the google drive links with you.
+**Project Proposal**: [Group1_Proposal.pdf](./docs/Group1_Proposal.pdf)
 
-### Add mistake [Lanham et al, 2023](https://arxiv.org/abs/2307.13702)
-We reuse the prompts from [Lanham et al](https://arxiv.org/abs/2307.13702) to add mistakes into CoT steps. A reproduction of this with GPT-4o-mini can be found in [Adding mistakes repro](Adding%20mistakes%20repro.ipynb). The minimal results of this setup can be found in [minimal_mistake_results](minimal_mistake_results).
+**Data**: [OBQA&SQA](./data)
 
-### Annotation study
+## 👨‍💻 Team Members
 
-The annotation study data files, including all the per-model-dataset bins can be found in [annotation_data](annotation_data).
-The code used to select instances for the study is in [Generate_annotation_data.ipynb](Generate_annotation_data.ipynb).
+This project was completed collaboratively by the following five students from *School of Data Science, Fudan University*:
 
-The full results of the annotation study can be fond in [annotation_results](annotation_results).
-The follow up analysis can be found in [Annotation analysis.ipynb](Annotation%20analysis.ipynb).
+* Jialong Chen
+* Tianle Chen
+* Junyan Liu
+* Kengyi Wang
+* Wanyi Zhou
 
-### Post-unlearning CoT LLM-as-judge
+## 🙏 Acknowledgments
 
-The code using GPT-4o as a judge of whether CoTs have changed the answer they argue for before and after unlearning can be found in [CoT LLM as judge.ipynb](CoT%20LLM%20as%20judge.ipynb).
-The LM judgements, along with the single-sentence explanations (which were not analysed in the paper) are in [LM_judge_cot](LM_judge_cot).
+This repository is an adaptation and extension based on the [Original Repository](https://github.com/technion-cs-nlp/parametric-faithfulness). For those interested, please refer to the original code. We would like to express our gratitude to the authors of the original paper, *[Measuring Chain of Thought Faithfulness by Unlearning Reasoning Steps](https://aclanthology.org/2025.emnlp-main.504.pdf)*, and their open-source repository. Their work provided a valuable reference baseline and essential code support for the reproduction and extension of this project.
 
-### Plots & tables
-Most of the code used to generate plots and tables from the paper, along with the plots and tables themselves, can be found in [Ablations.ipynb](Ablations.ipynb) and [Generate_CoT_heatmaps.ipynb](Generate_CoT_heatmaps.ipynb).

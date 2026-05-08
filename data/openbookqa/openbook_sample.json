@@ -1,0 +1,952 @@
+[
+  {
+    "id": "9-229",
+    "question_stem": "A bat flew through the sky without hitting anything due to which of these?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "rainy sky to fly in",
+        "fast truck to drive",
+        "a car with gasoline",
+        "surfaces to reflect sound off"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "9-1030",
+    "question_stem": "The viewing oriented sensor of a prairie creature are for what?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "reproductive purposes",
+        "viewing sounds",
+        "sensing views",
+        "sensing tastes"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "7-49",
+    "question_stem": "A rabbit may enjoy",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "meat",
+        "compost",
+        "peas",
+        "pebbles"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "520",
+    "question_stem": "Earthquakes",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "only happen in California",
+        "cause solar and lunar eclipses",
+        "will break your vases",
+        "make bridges much safer"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "7-677",
+    "question_stem": "A desert environment is",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "dry, grass covered, and humid",
+        "lush, green, and tropical",
+        "arid, parched, and sun-baked",
+        "dry, damp, and lush"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "7-333",
+    "question_stem": "Through DNA, a rabbit will have long ears if",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "rabbits are born with ears",
+        "there was a lot of food",
+        "genetic contributors had long ears",
+        "parents were also rabbits"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "8-378",
+    "question_stem": "A woman sells bracelets that she makes. The bracelets gain popularity, and the woman makes incredibly large amounts of money from the sales. After a while, very few people are still buying the bracelets, so",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "the woman makes more money",
+        "the woman makes the same amount of money",
+        "the woman spends more money",
+        "the woman makes less money"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "9-30",
+    "question_stem": "Which animal is considered a predator?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "ant",
+        "snake",
+        "elephant",
+        "giraffe"
+      ]
+    },
+    "answerKey": "B"
+  },
+  {
+    "id": "7-238",
+    "question_stem": "Shining a light through a diamond can",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "make a lot of bright lights shine",
+        "summon a brilliant wave of color",
+        "heat up a room",
+        "make a lot of money"
+      ]
+    },
+    "answerKey": "B"
+  },
+  {
+    "id": "889",
+    "question_stem": "An animal that only eats plants is a",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "rat",
+        "moth",
+        "chimpanzee",
+        "pig"
+      ]
+    },
+    "answerKey": "B"
+  },
+  {
+    "id": "9-418",
+    "question_stem": "Glucose travels",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "from roots to leaves of a daffodil",
+        "from a rose's leaves to the atmosphere",
+        "from a daisy's leaves into it's underground support system",
+        "from the sun to a sunflower's buds"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "1911",
+    "question_stem": "One of the negative consequences of offshore oil platforms is",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "evaporation of the surrounding water",
+        "discharge of liquid petroleum in the surrounding sea",
+        "improvement in the conditions of sea life",
+        "increase in the birthrate of sea birds"
+      ]
+    },
+    "answerKey": "B"
+  },
+  {
+    "id": "7-444",
+    "question_stem": "Muscles move bones to produce movement like when",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "arms are resting",
+        "hair is growing",
+        "smiles are invisible",
+        "toes are wiggled"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "9-44",
+    "question_stem": "There are various creatures that live in forests, such as",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "giant fish",
+        "enormous crabs",
+        "whitetails",
+        "desert jackals"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "9-637",
+    "question_stem": "Where would a duck like to live?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "the Sahara",
+        "Antarctica",
+        "the Appalachian mountains",
+        "Death Valley"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "1955",
+    "question_stem": "Lightning may lead to",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "damage to local foliage",
+        "rainbows across the sky",
+        "growth of local flora",
+        "firefighters getting the night off"
+      ]
+    },
+    "answerKey": "A"
+  },
+  {
+    "id": "8-130",
+    "question_stem": "A boy wants to use his Walkman so that he can listen to some music. When he tries to turn it on, it us unable to, and the boy realizes that he will need",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "heat",
+        "metal",
+        "lithium-ion",
+        "plastic"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "9-1139",
+    "question_stem": "The man's heart skipped a beat and he felt pain after touching which of these?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "ice cube",
+        "water",
+        "electrical transformer",
+        "grass"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "9-368",
+    "question_stem": "Birds carrying away fruit helps the tree",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "grow",
+        "fertilize",
+        "reproduce",
+        "conquer"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "785",
+    "question_stem": "What is a stopwatch used for?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "to rewind 5 minutes",
+        "to tell what will happen 5 minutes from now",
+        "to voice the time",
+        "to measure minutes and hours"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "8-45",
+    "question_stem": "When would a nocturnal predator most likely hunt?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "5 p.m.",
+        "12 p.m.",
+        "3 a.m.",
+        "10 a.m."
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "9-519",
+    "question_stem": "The boy was able to warm the fireplace without a lighter thanks to what?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "friction",
+        "metal",
+        "wishing",
+        "magic"
+      ]
+    },
+    "answerKey": "A"
+  },
+  {
+    "id": "8-466",
+    "question_stem": "What is the best way to guess a babies eye color?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "The surroundings they are born in.",
+        "Their parents usual diet.",
+        "Just take a random guess.",
+        "The genealogy records of their family."
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "7-1140",
+    "question_stem": "The summer solstice in the northern hemisphere is four months before",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "May",
+        "July",
+        "April",
+        "October"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "397",
+    "question_stem": "Organisms covered by layers of sediment",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "become fossils over night",
+        "may end up reanimated over time",
+        "develop characteristics for survival",
+        "may end up fueling a car"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "8-79",
+    "question_stem": "A balloon is filled with helium for a party. After the party, the balloons are left in the living room, where a fireplace is heating the room. The balloons",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "expand",
+        "melt",
+        "shrink",
+        "fall"
+      ]
+    },
+    "answerKey": "A"
+  },
+  {
+    "id": "7-157",
+    "question_stem": "Ocean water contains",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "copious amounts of seltzer",
+        "scant amounts of sodium chloride",
+        "scant amounts of carbonation",
+        "copious amounts of the combination of Na and Cl"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "9-1180",
+    "question_stem": "Mosquitoes enjoy all the people at a BBQ in the summer for what reason?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "steak",
+        "blood",
+        "nice weather",
+        "taking food"
+      ]
+    },
+    "answerKey": "B"
+  },
+  {
+    "id": "8-179",
+    "question_stem": "A person has a chance to experience an equinox",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "weekly",
+        "monthly",
+        "annually",
+        "biannually"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "7-725",
+    "question_stem": "Wind can cause",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "basements to flood due to weather",
+        "small birds to kill large birds",
+        "waterfalls to flow backwards",
+        "stones to weather down to pebbles"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "9-110",
+    "question_stem": "Mammals give birth to live",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "children",
+        "birds",
+        "fish",
+        "insects"
+      ]
+    },
+    "answerKey": "A"
+  },
+  {
+    "id": "1215",
+    "question_stem": "A fallen leaf",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "will turn into a tree",
+        "will become bright green",
+        "will begin to recycle the nutrients that made up its structure",
+        "is likely to continue to grow"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "1231",
+    "question_stem": "Sources of spices have",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "crystals",
+        "feathers",
+        "cell walls",
+        "craters"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "266",
+    "question_stem": "What is used for sensing visual things?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "nerves",
+        "tibia",
+        "nostril",
+        "cornea"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "75",
+    "question_stem": "The amount of friction and the speed of an object have what kind of relationship?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "inverse",
+        "reverse",
+        "direct",
+        "equal"
+      ]
+    },
+    "answerKey": "A"
+  },
+  {
+    "id": "761",
+    "question_stem": "Where would a polar bear be most comfortable?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "Arizona",
+        "Georgia",
+        "Florida",
+        "Nebraska"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "7-664",
+    "question_stem": "If bacon is left too long on a hot stove top",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "it will be cooked perfectly",
+        "it will be bacteria laden",
+        "it will become blackened",
+        "it will be left raw"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "132",
+    "question_stem": "What would happen when balloons heat up?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "they get bigger",
+        "they get smaller",
+        "nothing happens",
+        "they fall down"
+      ]
+    },
+    "answerKey": "A"
+  },
+  {
+    "id": "8-135",
+    "question_stem": "Eyes allow humans",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "to detect when a traffic light changes",
+        "detect sour flavors in candy",
+        "hear music at concerts",
+        "detect acrid odors in the air"
+      ]
+    },
+    "answerKey": "A"
+  },
+  {
+    "id": "9-1102",
+    "question_stem": "Which is recyclable?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "An Elephant",
+        "A school notebook",
+        "A boat",
+        "A lake"
+      ]
+    },
+    "answerKey": "B"
+  },
+  {
+    "id": "9-159",
+    "question_stem": "The Grand Canyon is massive, with large, high peaks and very deep lows, which was formed when",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "some water is around it",
+        "water rained on it",
+        "natural waters weathered it",
+        "a pool was opened"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "1787",
+    "question_stem": "A small creek absorbing heat energy can result in",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "the creek water getting colder",
+        "a parched creek bed",
+        "tributaries branching off from the creek",
+        "a runoff of extra water"
+      ]
+    },
+    "answerKey": "B"
+  },
+  {
+    "id": "8-343",
+    "question_stem": "A person wants to start saving money so that they can afford a nice vacation at the end of the year. After looking over their budget and expenses, they decide the best way to save money is to",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "make more phone calls",
+        "quit eating lunch out",
+        "buy less with monopoly money",
+        "have lunch with friends"
+      ]
+    },
+    "answerKey": "B"
+  },
+  {
+    "id": "1924",
+    "question_stem": "Desert environments features",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "tropical plants",
+        "tons of sun",
+        "massive rain totals",
+        "icy precipitation"
+      ]
+    },
+    "answerKey": "B"
+  },
+  {
+    "id": "9-29",
+    "question_stem": "What could be a positive aspect of a tree being cut down?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "the plants that were under the tree will have access to more light",
+        "the squirrels that were in that tree will have an easier time getting to their home",
+        "Plants under the tree will get cooled off by the shade",
+        "The sun will shine brighter than before"
+      ]
+    },
+    "answerKey": "A"
+  },
+  {
+    "id": "7-391",
+    "question_stem": "Animals are drawn to",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "gold",
+        "houses",
+        "feeders",
+        "Carbon Dioxide"
+      ]
+    },
+    "answerKey": "C"
+  },
+  {
+    "id": "9-463",
+    "question_stem": "Which is best an letting electricity pass through?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "tile flooring",
+        "human flesh",
+        "hockey stick",
+        "a steak knife"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "7-160",
+    "question_stem": "An octopus protects itself with",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "water splashing",
+        "running fast",
+        "long hands",
+        "pigment squirting"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "229",
+    "question_stem": "Nuclear activity is the cause of what celestial occurrence?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "axial planetary rotation",
+        "comets",
+        "planetary formation",
+        "the sun's rays"
+      ]
+    },
+    "answerKey": "D"
+  },
+  {
+    "id": "8-257",
+    "question_stem": "Which of these is a hypothesis?",
+    "choices": {
+      "label": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "text": [
+        "The ice caps will completely melt if global warming continues",
+        "The earth is round",
+        "The earth revolves around the sun",
+        "Gravity causes objects to fall"
+      ]
+    },
+    "answerKey": "A"
+  }
+]
