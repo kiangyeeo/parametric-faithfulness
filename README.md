@@ -30,7 +30,7 @@ This project was completed collaboratively by the following five students from *
 ### Phase 1 · Reproduction
 
 - [x] Data processing
-- [ ] Environment setup 
+- [x] Environment setup 
 - [ ] Run CoT prompting pipeline, record baseline accuracy
 - [ ] Run no-CoT prompting pipeline as control
 - [ ] NPO-KL stepwise unlearning experiments
@@ -50,19 +50,19 @@ This project was completed collaboratively by the following five students from *
 
 ## 🗓️ Timeline
 
-|   DDL    | Milestone                                                | Owner                               |
-| :------: | :------------------------------------------------------- | :---------------------------------- |
-| April 26 | Determine project and communication                      | All                                 |
-| April 30 | Proposal and code&data                                   | All                                 |
-|  May 13  | Environment setup + CoT / no-CoT baseline on 10 demos    | Junyan Liu                          |
-|  May 16  | NPO unlearning & mistake baseline (parallel) on 10 demos | Tianle Chen / Kengyi Wang           |
-|  May 17  | Metrics + visualization                                  | Wanyi Zhou                          |
-|  May 21  | Midterm presentation                                     | Jialong Chen                        |
-|  May 24  | Reproduction workflow on the full data sample            | All                                 |
-| June 07  | Extension: $\lambda$ ablation                            | Jialong Chen                        |
-| June 07  | NPO replacement experiments                              | Junyan Liu, Tianle Chen, Wanyi Zhou |
-| June 14  | Final report                                             | Kengyi Wang                         |
-| June 25  | Modify and submit                                        | All                                 |
+|   DDL    | Milestone                                       | Owner                               |
+| :------: | :---------------------------------------------- | :---------------------------------- |
+| April 26 | Determine project and communication             | All                                 |
+| April 30 | Proposal and code&data                          | All                                 |
+|  May 14  | Environment setup + CoT generation + unlearning | Tianle Chen / Kengyi Wang           |
+|  May 16  | Add mistake baseline                            | Junyan Liu                          |
+|  May 17  | Metrics + visualization                         | Wanyi Zhou                          |
+|  May 21  | Midterm presentation                            | Jialong Chen                        |
+|  May 24  | Reproduction summary                            | All                                 |
+| June 07  | Extension: $\lambda$ ablation                   | Jialong Chen                        |
+| June 07  | NPO replacement experiments                     | Junyan Liu, Tianle Chen, Wanyi Zhou |
+| June 14  | Final report                                    | Kengyi Wang                         |
+| June 25  | Modify and submit                               | All                                 |
 
 ## 🙏 Acknowledgments
 
