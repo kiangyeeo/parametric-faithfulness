@@ -4,3 +4,4 @@ __pycache__/*
 ablation/*
 results/*
 .claude/
+.vscode/
