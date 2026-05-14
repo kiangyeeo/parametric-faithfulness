@@ -3,9 +3,9 @@
 
 # 核心训练 + 推理
 torch>=2.1
-transformers>=4.40,<4.50
+transformers==4.40.2
 accelerate>=0.30
-huggingface-hub>=0.23
+huggingface-hub>=0.23,<1.0
 datasets>=2.18           # OBQA 第一次本地化前可能还要联网下别的，留着
 
 # NLP 工具
