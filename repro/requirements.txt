@@ -28,3 +28,4 @@ lm-eval>=0.4
 # notebook 跑分析
 jupyter
 ipykernel
+google-genai>=1.0       # Gemini API for Add-mistake baseline
