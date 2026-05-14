@@ -11,9 +11,56 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
 ## 🔗 Documents & Links
 
-**Project Proposal**: [Group1_Proposal.pdf](./docs/Group1_Proposal.pdf)
+**Project Proposal:** [Group1_Proposal.pdf](./docs/Group1_Proposal.pdf)
 
-**Data**: [OBQA&SQA](./data)
+**Data:** [OBQA&SQA](./data)
+
+**CoT&NoCoT results:** [4 dataset-model cot results](./final_cot)
+
+**Unlearn results:** [4 dataset-model unlearn results](./final_results)
+
+## 🚀 Quick Start Reproduction
+
+1. **Set up the environment and install packages.** 
+
+   ```bash
+   cd repro
+   conda activate pf
+   pip install -r requirements.txt
+   python -m spacy download en_core_web_sm
+   python -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab')"
+   ```
+
+   **Tips:**  If you are using Qizhi (http://qz.cfff.fudan.edu.cn/), you can directly use the environment we make by `conda activate pf`.
+
+2. **Set your Huggingface Token. Make sure you have the access to use Llama-3.2-3B.**
+
+   ```bash
+   export HF_TOKEN=hf_xxxxxx 
+   ```
+
+   **Tips:** Apply for your access to visit Llama-3.2-3B in https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct. If  you are using Qizhi (http://qz.cfff.fudan.edu.cn/), you can ignore this part because we have download the model on the server.
+
+3. **Run the CoT&noCoT baseline before unlearning, and use GPU smoke test.**
+
+   ```bash
+   SMOKE=1 bash repro/run_all.sh
+   ```
+
+   The CoT&noCoT results will be saved in `./final_cot`. 
+   Smoke test results will be saved in `./smoke_results`.
+
+4. **Run the unlearning experiment.**
+
+   ```bash
+   bash repro/run_all.sh
+   ```
+
+   Unlearn results will be saved in `./final_results`.
+
+5. Mistake injection and Gemini-3-flash baseline
+
+6. Compute scores
 
 ## 👨‍💻 Team Members
 
@@ -31,8 +78,8 @@ This project was completed collaboratively by the following five students from *
 
 - [x] Data processing
 - [x] Environment setup 
-- [ ] Run CoT prompting pipeline, record baseline accuracy
-- [ ] Run no-CoT prompting pipeline as control
+- [x] Run CoT prompting pipeline, record baseline accuracy
+- [x] Run no-CoT prompting pipeline as control
 - [ ] NPO-KL stepwise unlearning experiments
 - [ ] Implement Lanham mistake-injection baseline 
 - [ ] Compute FF-HARD / FF-SOFT metrics
