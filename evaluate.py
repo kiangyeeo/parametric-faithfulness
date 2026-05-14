@@ -298,6 +298,7 @@ def completion_probabilities(model, tokenizer, prefix, targets):
     target_probs = target_probs.squeeze(1)
     seq_probs = torch.sum(target_probs, dim=1)  # prod if not in logspace
     length_penalty = model.generation_config.length_penalty
-    seq_probs /= lengths**length_penalty # if not logspace seq_probs /= lengths
+    if length_penalty is not None:
+      seq_probs /= lengths**length_penalty
 
     return seq_probs

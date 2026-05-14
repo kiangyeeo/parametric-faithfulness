@@ -160,7 +160,7 @@ class MMLU(DataHandler):
         super().__init__()
 
     def get_dataset_splits(self):
-        dataset = load_dataset(self.key, self.subkey, trust_remote_code=True)
+        dataset = load_dataset(self.key, self.subkey, trust_remote_code=False)
         return dataset["train"], dataset["validation"], dataset["test"]
 
     def get_answer_letters(self, instance):
