@@ -65,7 +65,7 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
    python mistakes_repro.py --short_model Phi-3 --dataset openbook
    ```
    
-   The notebook reads `./final_cot` and writes injected mistakes to `./mistake_results`. `mistakes_repro.py` evaluates them and writes results to `./mistake_stats`. Change `--short_model` and `--dataset` for other 2$\times$2 combinations.
+   The notebook reads `./final_cot` and writes injected mistakes to `./mistake_results`. `mistakes_repro.py` evaluates them and writes results to `./mistake_stats`. Change `--short_model` and `--dataset` for other $2\times2$ combinations.
    
 6. Compute scores
 
