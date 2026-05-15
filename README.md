@@ -13,9 +13,11 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
 **Project Proposal:** [Group1_Proposal.pdf](./docs/Group1_Proposal.pdf)
 
+**Presentation Slides:** [parametric-faithfulness.pptx](./presentation/parametric-faithfulness.pptx)
+
 **Data:** [OBQA&SQA](./data)
 
-**Reproduction results:** [CoT&noCoT results](./final_cot),  [unlearning results](./final_results),  [Add-mistake baseline results](./mistake_stats),  
+**Reproduction Results:** [CoT&noCoT results](./final_cot),  [unlearning results](./final_results),  [Add-mistake baseline results](./mistake_stats)
 
 ## 🚀 Quick Start Reproduction
 
