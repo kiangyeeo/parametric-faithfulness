@@ -15,9 +15,7 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
 **Data:** [OBQA&SQA](./data)
 
-**CoT&NoCoT results:** [4 dataset-model cot results](./final_cot)
-
-**Unlearn results:** [4 dataset-model unlearn results](./final_results)
+**Reproduction results:** [CoT&noCoT results](./final_cot),  [unlearning results](./final_results),  [Add-mistake baseline results](./mistake_stats),  
 
 ## 🚀 Quick Start Reproduction
 
@@ -61,14 +59,13 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 5. **Mistake injection and Gemini-3-flash baseline**
 
    ```bash
-   conda env config vars set GEMINI_API_KEY=your_google_api_key
-   conda deactivate && conda activate pf
+   set GEMINI_API_KEY=your_google_api_key
    jupyter notebook "Adding mistakes repro.ipynb"
    python mistakes_repro.py --short_model Phi-3 --dataset openbook
    ```
-
-   The notebook reads `./final_cot` and writes injected mistakes to `./mistake_results`. `mistakes_repro.py` evaluates them and writes results to `./mistake_stats`. Change `--short_model` and `--dataset` for other 2x2 combinations. Keep `HF_TOKEN` set when evaluating LLaMA-3.2-3B.
-
+   
+   The notebook reads `./final_cot` and writes injected mistakes to `./mistake_results`. `mistakes_repro.py` evaluates them and writes results to `./mistake_stats`. Change `--short_model` and `--dataset` for other 2$\times$2 combinations.
+   
 6. Compute scores
 
 ## 👨‍💻 Team Members
@@ -89,8 +86,8 @@ This project was completed collaboratively by the following five students from *
 - [x] Environment setup 
 - [x] Run CoT prompting pipeline, record baseline accuracy
 - [x] Run no-CoT prompting pipeline as control
-- [ ] NPO-KL stepwise unlearning experiments
-- [ ] Implement Lanham mistake-injection baseline 
+- [x] NPO-KL stepwise unlearning experiments
+- [x] Implement Lanham mistake-injection baseline 
 - [ ] Compute FF-HARD / FF-SOFT metrics
 - [ ] Generate plots to compare and show the results
 
