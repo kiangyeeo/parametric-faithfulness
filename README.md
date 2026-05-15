@@ -58,7 +58,16 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
    Unlearn results will be saved in `./final_results`.
 
-5. Mistake injection and Gemini-3-flash baseline
+5. **Mistake injection and Gemini-3-flash baseline**
+
+   ```bash
+   conda env config vars set GEMINI_API_KEY=your_google_api_key
+   conda deactivate && conda activate pf
+   jupyter notebook "Adding mistakes repro.ipynb"
+   python mistakes_repro.py --short_model Phi-3 --dataset openbook
+   ```
+
+   The notebook reads `./final_cot` and writes injected mistakes to `./mistake_results`. `mistakes_repro.py` evaluates them and writes results to `./mistake_stats`. Change `--short_model` and `--dataset` for other 2x2 combinations. Keep `HF_TOKEN` set when evaluating LLaMA-3.2-3B.
 
 6. Compute scores
 
