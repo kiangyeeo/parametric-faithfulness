@@ -62,6 +62,29 @@ def get_batch_loss(output, labels):
 
     return loss
 
+def get_per_sample_nll_and_length(logits, labels):
+    # logits: [B, T, V]
+    # labels: [B, T]
+
+    shift_logits = logits[:, :-1, :].contiguous()
+    shift_labels = labels[:, 1:].contiguous()
+
+    loss_fct = nn.CrossEntropyLoss(reduction='none')
+
+    token_loss = loss_fct(
+        shift_logits.view(-1, shift_logits.size(-1)),
+        shift_labels.view(-1)
+    )
+
+    token_loss = token_loss.view(shift_labels.size())
+
+    valid_mask = shift_labels.ne(-100)
+
+    per_sample_nll = (token_loss * valid_mask).sum(dim=1)
+    response_length = valid_mask.sum(dim=1).clamp(min=1)
+
+    return per_sample_nll, response_length
+
 def compute_loss(model, oracle_model, inputs, loss_type='npo_grad_diff', ref_policy='fine_tuned', beta=0.1, npo_coeff=1.0, grad_diff_coeff=1.0, KL_coeff=1.0, return_outputs=False):
         ### Implement the NPO
         if loss_type == 'npo':
@@ -133,6 +156,65 @@ def compute_loss(model, oracle_model, inputs, loss_type='npo_grad_diff', ref_pol
 
             # minimum KL divergence
             retain_loss = nn.functional.kl_div(current_probs, retain_probs, reduction='batchmean', log_target=True)
+            loss = npo_coeff * forget_loss + KL_coeff * retain_loss
+
+        elif loss_type == 'simnpo_KL':
+            forget_inputs, retain_inputs = inputs
+            input_ids, labels, attention_mask = forget_inputs
+
+            # =========================
+            # Forget loss: SimNPO
+            # =========================
+            outputs = model(
+                input_ids,
+                labels=labels,
+                attention_mask=attention_mask
+            )
+
+            forget_nll, response_length = get_per_sample_nll_and_length(
+                outputs.logits,
+                labels
+            )
+
+            gamma = 0.0
+
+            # SimNPO:
+            # - 2 / beta * log sigmoid(beta * NLL / |y| - gamma)
+            simnpo_logits = beta * forget_nll / response_length - gamma
+            forget_loss = -F.logsigmoid(simnpo_logits).mean() * 2 / beta
+
+            # =========================
+            # Retain loss: KL
+            # =========================
+            retain_input_ids, retain_labels, retain_attention_mask = retain_inputs
+
+            with torch.no_grad():
+                retain_outputs = oracle_model(
+                    retain_input_ids,
+                    labels=retain_labels,
+                    attention_mask=retain_attention_mask
+                )
+
+            retain_log_probs = F.log_softmax(retain_outputs.logits, dim=-1)
+
+            current_outputs = model(
+                retain_input_ids,
+                labels=retain_labels,
+                attention_mask=retain_attention_mask
+            )
+
+            current_log_probs = F.log_softmax(current_outputs.logits, dim=-1)
+
+            kl_per_token = F.kl_div(
+                current_log_probs,
+                retain_log_probs,
+                reduction='none',
+                log_target=True
+            ).sum(dim=-1)
+
+            retain_mask = retain_labels.ne(-100)
+            retain_loss = (kl_per_token * retain_mask).sum() / retain_mask.sum().clamp(min=1)
+
             loss = npo_coeff * forget_loss + KL_coeff * retain_loss
 
         return (loss, outputs) if return_outputs else loss
