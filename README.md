@@ -19,6 +19,8 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
 **Reproduction Results:** [CoT&noCoT results](./final_cot),  [unlearning results](./final_results),  [Add-mistake baseline results](./mistake_stats)
 
+**Extension Results:** [SimNPO instead of NPO results](./simnpo final_results)
+
 ## 🚀 Quick Start Reproduction
 
 1. **Set up the environment and install packages.** 
@@ -95,7 +97,8 @@ This project was completed collaboratively by the following five students from *
 ### Phase 2 · Extension
 
 - [ ] Design $\lambda$ sweep range & run ablation
-- [ ] Run one alternative method under the same setup
+- [x] Run SimNPO instead of NPO under the same setup
+- [ ] Explore a new alternative method under the same setup
 - [ ] Compare against NPO
 - [ ] Integrate results from both extension tracks
 - [ ] Final report completed
