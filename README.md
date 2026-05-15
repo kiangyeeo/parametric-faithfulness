@@ -24,15 +24,14 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 1. **Set up the environment and install packages.** 
 
    ```bash
-   cd repro
    conda activate pf
    pip install -r requirements.txt
    python -m spacy download en_core_web_sm
    python -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab')"
    ```
-
+   
    **Tips:**  If you are using Qizhi (http://qz.cfff.fudan.edu.cn/), you can directly use the environment we make by `conda activate pf`.
-
+   
 2. **Set your Huggingface Token. Make sure you have the access to use Llama-3.2-3B.**
 
    ```bash
