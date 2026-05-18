@@ -91,8 +91,8 @@ This project was completed collaboratively by the following five students from *
 - [x] Run no-CoT prompting pipeline as control
 - [x] NPO-KL stepwise unlearning experiments
 - [x] Implement Lanham mistake-injection baseline 
-- [ ] Compute FF-HARD / FF-SOFT metrics, and other results.
-- [ ] Generate plots to compare and show the results
+- [x] Compute FF-HARD / FF-SOFT metrics, and other results.
+- [x] Generate plots to compare and show the results
 
 ### Phase 2 · Extension
 
