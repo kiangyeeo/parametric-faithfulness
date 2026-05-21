@@ -29,3 +29,7 @@ lm-eval>=0.4
 jupyter
 ipykernel
 google-genai>=1.0       # Gemini API for Add-mistake baseline
+
+# PPT generation
+python-pptx>=1.0.2
+Pillow>=10
