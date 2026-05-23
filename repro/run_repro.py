@@ -38,7 +38,7 @@ import unlearn
 from repro import config as cfg
 
 
-def build_args(short_model, dataset, lr, smoke=False):
+def build_args(short_model, dataset, lr, smoke=False, mmlu=0):
     """构造 unlearn.main 期望的 argparse.Namespace。
 
     避开了 sys.argv，所以这个函数也方便从 notebook 里调。
@@ -59,7 +59,7 @@ def build_args(short_model, dataset, lr, smoke=False):
         pos         = cfg.POS_FILTER,
         ff2         = cfg.FF2_ONLY,
         ablation    = smoke,           # 让源代码走 ablation 分支（N=30）
-        mmlu        = 0,
+        mmlu        = mmlu,
         gsm         = 0,
         # 源仓库漏注册的 flag —— 必须手动塞进 Namespace
         atomic      = False,
@@ -112,13 +112,21 @@ def patched_main(args):
     N_unlearn = cfg.N_UNLEARN
     if args.ablation:  # smoke
         N_unlearn = 5
+    if args.mmlu: # mmlu
+        N_unlearn = args.mmlu
 
     cots_train, cots_verify = cot_data[:-N_verify], cot_data[-N_verify:]
 
     mod = args.model_name.split("/")[-1]
     short_model = model_name_dict[mod]
 
-    root_name = cfg.SMOKE_DIR if args.ablation else cfg.RESULTS_DIR
+    if args.ablation:
+        root_name = cfg.SMOKE_DIR
+    elif args.mmlu:
+        root_name = "mmlu_results"          # 单独目录，不碰 final_results
+    else:
+        root_name = cfg.RESULTS_DIR
+    
     resdir = f"{root_name}/{args.dataset}/{short_model}/"
     os.makedirs(resdir, exist_ok=True)
     logfile_name = (
@@ -161,6 +169,8 @@ def patched_main(args):
             if ret["unlearning_results"] is None:
                 continue
             instance_info["unlearning_results"] = ret["unlearning_results"]
+            if args.mmlu:
+                instance_info["mmlu_results"] = ret.get("mmlu_results")
             unlearn.store(instance_info, resdir + logfile_name)
             del instance_info
             gc.collect()
@@ -172,6 +182,8 @@ def make_cli():
     p.add_argument("--short_model", choices=list(cfg.MODELS), required=True)
     p.add_argument("--dataset", choices=cfg.DATASETS, required=True)
     p.add_argument("--lr", type=float, required=True)
+    p.add_argument("--mmlu", type=int, default=0,
+                   help="对前 N 条 CoT 额外评 MMLU（原文 N=10）；0 表示不评")
     p.add_argument("--smoke", action="store_true",
                    help="跑 5 条 × 2 epoch 验证 pipeline，结果写 smoke_results/")
     return p
@@ -180,6 +192,6 @@ def make_cli():
 if __name__ == "__main__":
     cli_args = make_cli().parse_args()
     run_args = build_args(
-        cli_args.short_model, cli_args.dataset, cli_args.lr, smoke=cli_args.smoke,
+        cli_args.short_model, cli_args.dataset, cli_args.lr, smoke=cli_args.smoke, mmli=cli_args.mmlu
     )
     patched_main(run_args)

@@ -377,22 +377,27 @@ def unlearn_single(model_id, tokenizer, args, target, step_idx, cots_train, cots
     }
 
     if args.mmlu or args.gsm:
-      logdir = resdir.replace("chkp", "gen_cap") + f"{args.lr}/"
-      os.makedirs(logdir, exist_ok=True)
+        from lm_eval import simple_evaluate
+        logdir = resdir.replace("chkp", "gen_cap") + f"{args.lr}/"
+        os.makedirs(logdir, exist_ok=True)
 
-      print("Running evaluation from python")
-      result = run_lm_eval(resdir + name, logdir + name)
-      result_lines = result.split("\n")
-      score_line = result_lines[-7]
-      result_line_parts = score_line.split("|")
-      assert result_line_parts[1].strip() == 'mmlu', "Error when retrieving scores"
-      mmlu_acc, err = result_line_parts[-4], result_line_parts[-2]
-      # print(f"Accuracy and error: {acc} +- {err}")
-      key = 'mmlu_results' if args.mmlu else 'gsm8k_results'
-      return_dict[key] = mmlu_acc
+        print("Running MMLU via simple_evaluate ...")
+        res = simple_evaluate(
+            model="hf",
+            model_args=f"pretrained={resdir + name}",
+            tasks=["mmlu"],
+            batch_size="auto:4",
+            device="auto",
+            num_fewshot=0,
+            # limit=0.25
+        )
+        mmlu_acc = res["results"]["mmlu"]["acc,none"]
+        key = "mmlu_results" if args.mmlu else "gsm8k_results"
+        return_dict[key] = float(mmlu_acc)
+        print(f"MMLU acc = {mmlu_acc}")
 
-      print("Deleting model directory")
-      shutil.rmtree(resdir + name, ignore_errors=False, onerror=None)
+        print("Deleting model directory")
+        shutil.rmtree(resdir + name, ignore_errors=True)
 
     return return_dict
 
