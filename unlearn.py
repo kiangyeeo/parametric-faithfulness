@@ -85,6 +85,29 @@ def get_per_sample_nll_and_length(logits, labels):
 
     return per_sample_nll, response_length
 
+def get_logit_margin_flattening_loss(logits, labels):
+    shift_logits = logits[:, :-1, :].contiguous().float()
+    shift_labels = labels[:, 1:].contiguous()
+    valid_mask = shift_labels.ne(-100)
+
+    token_margin = shift_logits.max(dim=-1).values - shift_logits.mean(dim=-1)
+    token_loss = token_margin.square()
+    return (token_loss * valid_mask).sum() / valid_mask.sum().clamp(min=1)
+
+def masked_token_kl_loss(current_logits, reference_logits, labels):
+    current_log_probs = F.log_softmax(current_logits[:, :-1, :].contiguous().float(), dim=-1)
+    reference_log_probs = F.log_softmax(reference_logits[:, :-1, :].contiguous().float(), dim=-1)
+
+    kl_per_token = F.kl_div(
+        current_log_probs,
+        reference_log_probs,
+        reduction='none',
+        log_target=True
+    ).sum(dim=-1)
+
+    valid_mask = labels[:, 1:].contiguous().ne(-100)
+    return (kl_per_token * valid_mask).sum() / valid_mask.sum().clamp(min=1)
+
 def compute_loss(model, oracle_model, inputs, loss_type='npo_grad_diff', ref_policy='fine_tuned', beta=0.1, npo_coeff=1.0, grad_diff_coeff=1.0, KL_coeff=1.0, return_outputs=False):
         ### Implement the NPO
         if loss_type == 'npo':
@@ -156,6 +179,34 @@ def compute_loss(model, oracle_model, inputs, loss_type='npo_grad_diff', ref_pol
 
             # minimum KL divergence
             retain_loss = nn.functional.kl_div(current_probs, retain_probs, reduction='batchmean', log_target=True)
+            loss = npo_coeff * forget_loss + KL_coeff * retain_loss
+
+        elif loss_type == 'lmf_KL':
+            forget_inputs, retain_inputs = inputs
+            input_ids, labels, attention_mask = forget_inputs
+
+            outputs = model(input_ids, labels=labels, attention_mask=attention_mask)
+            forget_loss = get_logit_margin_flattening_loss(outputs.logits, labels)
+
+            retain_input_ids, retain_labels, retain_attention_mask = retain_inputs
+            with torch.no_grad():
+                retain_outputs = oracle_model(
+                    retain_input_ids,
+                    labels=retain_labels,
+                    attention_mask=retain_attention_mask
+                )
+
+            current_outputs = model(
+                retain_input_ids,
+                labels=retain_labels,
+                attention_mask=retain_attention_mask
+            )
+
+            retain_loss = masked_token_kl_loss(
+                current_outputs.logits,
+                retain_outputs.logits,
+                retain_labels
+            )
             loss = npo_coeff * forget_loss + KL_coeff * retain_loss
 
         elif loss_type == 'simnpo_KL':
