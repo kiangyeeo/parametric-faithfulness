@@ -173,7 +173,7 @@ def make_cli():
     p.add_argument("--dataset", choices=cfg.DATASETS, required=True)
     p.add_argument("--lr", type=float, required=True)
     p.add_argument("--smoke", action="store_true",
-                   help="跑 5 条 × 2 epoch 验证 pipeline，结果写 smoke_results/")
+                    help="跑 5 条 × 2 epoch 验证 pipeline，结果写 smoke_results/")
     return p
 
 
