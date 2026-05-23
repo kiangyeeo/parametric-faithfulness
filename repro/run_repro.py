@@ -192,6 +192,6 @@ def make_cli():
 if __name__ == "__main__":
     cli_args = make_cli().parse_args()
     run_args = build_args(
-        cli_args.short_model, cli_args.dataset, cli_args.lr, smoke=cli_args.smoke, mmli=cli_args.mmlu
+        cli_args.short_model, cli_args.dataset, cli_args.lr, smoke=cli_args.smoke, mmlu=cli_args.mmlu
     )
     patched_main(run_args)
