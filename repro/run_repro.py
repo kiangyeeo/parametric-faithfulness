@@ -38,6 +38,7 @@ def build_args(
     n_verify=None,
     epochs=None,
     log_suffix=None,
+    mmlu=0
 ):
     model_id = cfg.MODELS[short_model]
 
@@ -56,7 +57,7 @@ def build_args(
         pos=cfg.POS_FILTER,
         ff2=cfg.FF2_ONLY,
         ablation=smoke,
-        mmlu=0,
+        mmlu=mmlu,
         gsm=0,
         results_dir=results_dir,
         n_unlearn=n_unlearn,
@@ -110,15 +111,23 @@ def patched_main(args):
     n_unlearn = args.n_unlearn if args.n_unlearn is not None else cfg.N_UNLEARN
     if args.ablation and args.n_unlearn is None:
         n_unlearn = 5
+    if args.mmlu: # mmlu
+        N_unlearn = args.mmlu
 
     cots_train, cots_verify = cot_data[:-n_verify], cot_data[-n_verify:]
 
     mod = args.model_name.split("/")[-1]
     short_model = model_name_dict[mod]
 
-    root_name = args.results_dir
-    if root_name is None:
-        root_name = cfg.SMOKE_DIR if args.ablation else cfg.RESULTS_DIR
+root_name = args.results_dir
+
+if root_name is None:
+    if args.ablation:
+        root_name = cfg.SMOKE_DIR
+    elif args.mmlu:
+        root_name = "mmlu_results"   
+    else:
+        root_name = cfg.RESULTS_DIR
 
     resdir = f"{root_name}/{args.dataset}/{short_model}/"
     os.makedirs(resdir, exist_ok=True)
@@ -173,6 +182,8 @@ def patched_main(args):
                 continue
 
             instance_info["unlearning_results"] = ret["unlearning_results"]
+            if args.mmlu:
+                instance_info["mmlu_results"] = ret.get("mmlu_results")
             unlearn.store(instance_info, resdir + logfile_name)
             del instance_info
             gc.collect()
@@ -184,6 +195,7 @@ def make_cli():
     parser.add_argument("--short_model", choices=list(cfg.MODELS), required=True)
     parser.add_argument("--dataset", choices=cfg.DATASETS, required=True)
     parser.add_argument("--lr", type=float, required=True)
+    parser.add_argument("--mmlu", type=int, default=0)
     parser.add_argument("--rt_lambda", type=float, default=1.0)
     parser.add_argument("--results_dir", type=str, default=None)
     parser.add_argument("--n_unlearn", type=int, default=None)
@@ -205,6 +217,7 @@ if __name__ == "__main__":
         cli_args.dataset,
         cli_args.lr,
         smoke=cli_args.smoke,
+        mmlu=cli_args.mmlu,
         rt_lambda=cli_args.rt_lambda,
         results_dir=cli_args.results_dir,
         n_unlearn=cli_args.n_unlearn,
