@@ -112,22 +112,22 @@ def patched_main(args):
     if args.ablation and args.n_unlearn is None:
         n_unlearn = 5
     if args.mmlu: # mmlu
-        N_unlearn = args.mmlu
+        n_unlearn = args.mmlu
 
     cots_train, cots_verify = cot_data[:-n_verify], cot_data[-n_verify:]
 
     mod = args.model_name.split("/")[-1]
     short_model = model_name_dict[mod]
 
-root_name = args.results_dir
+    root_name = args.results_dir
 
-if root_name is None:
-    if args.ablation:
-        root_name = cfg.SMOKE_DIR
-    elif args.mmlu:
-        root_name = "mmlu_results"   
-    else:
-        root_name = cfg.RESULTS_DIR
+    if root_name is None:
+        if args.ablation:
+            root_name = cfg.SMOKE_DIR
+        elif args.mmlu:
+            root_name = "mmlu_results"   
+        else:
+            root_name = cfg.RESULTS_DIR
 
     resdir = f"{root_name}/{args.dataset}/{short_model}/"
     os.makedirs(resdir, exist_ok=True)
