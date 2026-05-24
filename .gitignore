@@ -34,3 +34,5 @@ checkpoints/
 *.ckpt
 *.pt
 *.pth
+chkp/
+gen_cap
