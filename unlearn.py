@@ -341,7 +341,13 @@ def unlearn_single(model_id, tokenizer, args, target, step_idx, cots_train, cots
       optimizer.zero_grad()
 
       for step, batch in enumerate(train_dataloader):
-        loss = compute_loss(model, oracle_model, batch, loss_type=args.method) 
+        loss = compute_loss(
+          model,
+          oracle_model,
+          batch,
+          loss_type=args.method,
+          KL_coeff=getattr(args, 'rt_lambda', 1.0),
+        )
 
         loss.backward()
         optimizer.step()
@@ -402,7 +408,7 @@ def load_ids(fin, stepwise=False):
       with open(fin, 'r') as infile:
           for line in infile:
               jsonline = json.loads(line)
-              id = jsonline['question']
+              id = jsonline['id']
               if stepwise:
                   id = f"{id}_{jsonline['step_idx']}"
               ids.add(id)
@@ -430,6 +436,8 @@ def make_parser():
                         help="Number of unlearning epochs")
     parser.add_argument('--lr', type=float, default=5e-5,
                         help="Learning rate for NPO")
+    parser.add_argument('--rt_lambda', type=float, default=1.0,
+                        help="Coefficient for the retain KL regularization term K_RT")
     parser.add_argument('--new_cot', action='store_true', help="Force generation of a fresh batch of CoTs.")
     parser.add_argument('--pos', action='store_true', help="Filter out function tokens in unlearning.")
     parser.add_argument('--ff2', action='store_true', help="Optimize only the ff2 layers")
@@ -501,7 +509,8 @@ def main():
     resdir = f"{root_name}/{args.dataset}/{short_model}/"
     os.makedirs(resdir, exist_ok=True)
     # No POS, no ff2, unlearn full
-    logfile_name = f"{args.method}_{args.strategy}_s={args.stepwise}_lr={str(args.lr)}_rs={args.seed}_pos={args.pos}_ff2={args.ff2}.out"
+    lambda_suffix = "" if args.rt_lambda == 1.0 else f"_lambda={args.rt_lambda:g}"
+    logfile_name = f"{args.method}_{args.strategy}_s={args.stepwise}_lr={str(args.lr)}{lambda_suffix}_rs={args.seed}_pos={args.pos}_ff2={args.ff2}.out"
     
     # Restore previous results 
     ids = load_ids(resdir + logfile_name, stepwise=args.stepwise)
@@ -530,7 +539,8 @@ def main():
               'initial_cot_probs': target['cot_probs'],
               'initial_probs': target['nocot_probs'],
               'prediction': int(np.argmax(target['nocot_probs'])),
-              'cot_prediction': int(np.argmax(target['cot_probs']))
+              'cot_prediction': int(np.argmax(target['cot_probs'])),
+              'rt_lambda': args.rt_lambda,
           }
 
           if args.stepwise:
