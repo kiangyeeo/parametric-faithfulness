@@ -1,94 +1,90 @@
+"""Reproduction entry point with local datasets and configurable result paths.
+
+This wrapper keeps the original unlearning logic in ``unlearn.py`` but fixes
+the small 2x2 reproduction settings used by this repository:
+
+- use local OpenBookQA / StrategyQA subsets;
+- use config-controlled N_VERIFY / N_UNLEARN;
+- expose the retain KL coefficient used by lambda experiments;
+- allow result roots outside final_results so experiments do not overwrite
+  the reproduction baseline.
 """
-repro/run_repro.py
 
-复现 entry point。做了三件事：
- 1. 把源仓库的 DATASETS 全局字典替换成本地的 LOCAL_DATASETS；
- 2. 修掉源代码两个会卡住的 bug：args.atomic 没注册、N_unlearn 默认 250；
- 3. 提供 --smoke 选项，便于先用 5 条快速跑通整条 pipeline 再放大。
-
-调用方式（在仓库根目录，**不是** 在 repro/ 里）：
-    # 单组合
-    python -m repro.run_repro --short_model Phi-3 --dataset openbook --lr 1e-4
-    # smoke test（每个组合只跑 5 条 × 2 epoch，验证 pipeline）
-    python -m repro.run_repro --short_model Phi-3 --dataset openbook --lr 1e-4 --smoke
-    # 批量跑全部 2x2（建议放 shell/sbatch 脚本里串行/并行调度）
-    bash repro/run_all.sh
-
-注意：第一次跑某个 (model, dataset) 时会触发 CoT 生成，~10-30 min/组合。
-       生成结果会写到 final_cot/{dataset}/{model}_s=1001_t=0.0_cots.jsonl，
-       之后所有 run 都共享这份缓存。
-"""
 import argparse
 import os
 import sys
 
-# 让 import 找得到仓库根
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-# ===== 关键一步：在 import unlearn 之前替换 DATASETS =====
-# unlearn.py 顶部是 `from dataload import DATASETS`，是赋值不是引用，
-# 我们需要在 dataload 模块上原地改字典。
 import dataload
 from repro.local_datasets import LOCAL_DATASETS
-dataload.DATASETS.update(LOCAL_DATASETS)   # 覆盖 openbook / sqa 两个 key
-# =========================================================
+
+dataload.DATASETS.update(LOCAL_DATASETS)
 
 import unlearn
 from repro import config as cfg
 
 
-def build_args(short_model, dataset, lr, smoke=False, mmlu=0):
-    """构造 unlearn.main 期望的 argparse.Namespace。
-
-    避开了 sys.argv，所以这个函数也方便从 notebook 里调。
-    """
+def build_args(
+    short_model,
+    dataset,
+    lr,
+    smoke=False,
+    rt_lambda=1.0,
+    results_dir=None,
+    n_unlearn=None,
+    n_verify=None,
+    epochs=None,
+    log_suffix=None,
+    mmlu=0
+):
     model_id = cfg.MODELS[short_model]
 
-    ns = argparse.Namespace(
-        model_name  = model_id,
-        dataset     = dataset,
-        method      = cfg.METHOD,
-        strategy    = cfg.STRATEGY,
-        stepwise    = cfg.STEPWISE,
-        temperature = cfg.TEMPERATURE,
-        seed        = cfg.SEED,
-        epochs      = 2 if smoke else cfg.EPOCHS,
-        lr          = lr,
-        new_cot     = False,           # 用缓存好的 CoT
-        pos         = cfg.POS_FILTER,
-        ff2         = cfg.FF2_ONLY,
-        ablation    = smoke,           # 让源代码走 ablation 分支（N=30）
-        mmlu        = mmlu,
-        gsm         = 0,
-        # 源仓库漏注册的 flag —— 必须手动塞进 Namespace
-        atomic      = False,
+    return argparse.Namespace(
+        model_name=model_id,
+        dataset=dataset,
+        method=cfg.METHOD,
+        strategy=cfg.STRATEGY,
+        stepwise=cfg.STEPWISE,
+        temperature=cfg.TEMPERATURE,
+        seed=cfg.SEED,
+        epochs=epochs if epochs is not None else (2 if smoke else cfg.EPOCHS),
+        lr=lr,
+        rt_lambda=rt_lambda,
+        new_cot=False,
+        pos=cfg.POS_FILTER,
+        ff2=cfg.FF2_ONLY,
+        ablation=smoke,
+        mmlu=mmlu,
+        gsm=0,
+        results_dir=results_dir,
+        n_unlearn=n_unlearn,
+        n_verify=n_verify,
+        log_suffix=log_suffix,
+        atomic=False,
     )
-    return ns
 
 
 def patched_main(args):
-    """复制 unlearn.main 的逻辑，但用我们 config 里的 N_VERIFY/N_UNLEARN。
+    import gc
+    import random
 
-    源 main 把 N_verify=20 / N_unlearn=250 写死，与 50 条样本不兼容。
-    这里把整个 main 重写一遍，逻辑保持一致，只换数字 + 注入 HF token。
-    """
-    import gc, json, random
     import numpy as np
     import torch
-    from transformers import AutoTokenizer as TOK
     from data import load_or_generate_dataset_cots, model_name_dict
-    from util import set_random_seed
     from huggingface_hub import login
+    from transformers import AutoTokenizer as TOK
+    from util import set_random_seed
 
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-    # 从环境变量取 HF token，不要硬编码到代码里
     hf_token = os.environ.get("HF_TOKEN", "")
     if hf_token:
         login(hf_token)
     else:
-        print("[warn] HF_TOKEN 未设置，gated 模型（Llama）会拉取失败")
+        print("[warn] HF_TOKEN is not set; gated models must be cached locally.")
 
     set_random_seed(args.seed)
 
@@ -98,46 +94,54 @@ def patched_main(args):
     else:
         tokenizer.pad_token = tokenizer.eos_token
 
-    DH = dataload.DATASETS[args.dataset]  # 这里拿到的就是 Local* 子类
+    dh = dataload.DATASETS[args.dataset]
     cot_data = load_or_generate_dataset_cots(
-        model_id=args.model_name, tokenizer=tokenizer,
-        dataset_id=args.dataset, force_generate=args.new_cot,
+        model_id=args.model_name,
+        tokenizer=tokenizer,
+        dataset_id=args.dataset,
+        force_generate=args.new_cot,
         sentencize=(args.strategy == "sentencize"),
-        temperature=args.temperature, seed=args.seed, atomic=args.atomic,
+        temperature=args.temperature,
+        seed=args.seed,
+        atomic=args.atomic,
     )
     random.shuffle(cot_data)
 
-    # 关键改动：N_verify / N_unlearn 从 config 来
-    N_verify  = cfg.N_VERIFY
-    N_unlearn = cfg.N_UNLEARN
-    if args.ablation:  # smoke
-        N_unlearn = 5
+    n_verify = args.n_verify if args.n_verify is not None else cfg.N_VERIFY
+    n_unlearn = args.n_unlearn if args.n_unlearn is not None else cfg.N_UNLEARN
+    if args.ablation and args.n_unlearn is None:
+        n_unlearn = 5
     if args.mmlu: # mmlu
         N_unlearn = args.mmlu
 
-    cots_train, cots_verify = cot_data[:-N_verify], cot_data[-N_verify:]
+    cots_train, cots_verify = cot_data[:-n_verify], cot_data[-n_verify:]
 
     mod = args.model_name.split("/")[-1]
     short_model = model_name_dict[mod]
 
+root_name = args.results_dir
+
+if root_name is None:
     if args.ablation:
         root_name = cfg.SMOKE_DIR
     elif args.mmlu:
-        root_name = "mmlu_results"          # 单独目录，不碰 final_results
+        root_name = "mmlu_results"   
     else:
         root_name = cfg.RESULTS_DIR
-    
+
     resdir = f"{root_name}/{args.dataset}/{short_model}/"
     os.makedirs(resdir, exist_ok=True)
+
+    log_suffix = args.log_suffix or ""
     logfile_name = (
         f"{args.method}_{args.strategy}_s={args.stepwise}"
-        f"_lr={args.lr}_rs={args.seed}_pos={args.pos}_ff2={args.ff2}.out"
+        f"_lr={args.lr}{log_suffix}_rs={args.seed}_pos={args.pos}_ff2={args.ff2}.out"
     )
 
     ids = unlearn.load_ids(resdir + logfile_name, stepwise=args.stepwise)
     print(f"Ids so far: {len(ids)}")
 
-    for idx, target in enumerate(cots_train[:N_unlearn]):
+    for idx, target in enumerate(cots_train[:n_unlearn]):
         n_steps = len(target["segmented_cot"]) if args.stepwise else 1
         for step_idx in range(n_steps):
             check_id = target["id"]
@@ -157,17 +161,26 @@ def patched_main(args):
                 "initial_probs": target["nocot_probs"],
                 "prediction": int(np.argmax(target["nocot_probs"])),
                 "cot_prediction": int(np.argmax(target["cot_probs"])),
+                "rt_lambda": args.rt_lambda,
             }
             if args.stepwise:
                 instance_info["cot_step"] = target["segmented_cot"][step_idx]
                 instance_info["segmented_cot"] = target["segmented_cot"]
 
             ret = unlearn.unlearn_single(
-                args.model_name, tokenizer, args, target, step_idx,
-                cots_train, cots_verify, DH, idx,
+                args.model_name,
+                tokenizer,
+                args,
+                target,
+                step_idx,
+                cots_train,
+                cots_verify,
+                dh,
+                idx,
             )
             if ret["unlearning_results"] is None:
                 continue
+
             instance_info["unlearning_results"] = ret["unlearning_results"]
             if args.mmlu:
                 instance_info["mmlu_results"] = ret.get("mmlu_results")
@@ -178,20 +191,38 @@ def patched_main(args):
 
 
 def make_cli():
-    p = argparse.ArgumentParser()
-    p.add_argument("--short_model", choices=list(cfg.MODELS), required=True)
-    p.add_argument("--dataset", choices=cfg.DATASETS, required=True)
-    p.add_argument("--lr", type=float, required=True)
-    p.add_argument("--mmlu", type=int, default=0,
-                   help="对前 N 条 CoT 额外评 MMLU（原文 N=10）；0 表示不评")
-    p.add_argument("--smoke", action="store_true",
-                   help="跑 5 条 × 2 epoch 验证 pipeline，结果写 smoke_results/")
-    return p
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--short_model", choices=list(cfg.MODELS), required=True)
+    parser.add_argument("--dataset", choices=cfg.DATASETS, required=True)
+    parser.add_argument("--lr", type=float, required=True)
+    parser.add_argument("--mmlu", type=int, default=0)
+    parser.add_argument("--rt_lambda", type=float, default=1.0)
+    parser.add_argument("--results_dir", type=str, default=None)
+    parser.add_argument("--n_unlearn", type=int, default=None)
+    parser.add_argument("--n_verify", type=int, default=None)
+    parser.add_argument("--epochs", type=int, default=None)
+    parser.add_argument("--log_suffix", type=str, default=None)
+    parser.add_argument(
+        "--smoke",
+        action="store_true",
+        help="Run 5 examples x 2 epochs unless overridden.",
+    )
+    return parser
 
 
 if __name__ == "__main__":
     cli_args = make_cli().parse_args()
     run_args = build_args(
-        cli_args.short_model, cli_args.dataset, cli_args.lr, smoke=cli_args.smoke, mmlu=cli_args.mmlu
+        cli_args.short_model,
+        cli_args.dataset,
+        cli_args.lr,
+        smoke=cli_args.smoke,
+        mmlu=cli_args.mmlu,
+        rt_lambda=cli_args.rt_lambda,
+        results_dir=cli_args.results_dir,
+        n_unlearn=cli_args.n_unlearn,
+        n_verify=cli_args.n_verify,
+        epochs=cli_args.epochs,
+        log_suffix=cli_args.log_suffix,
     )
     patched_main(run_args)

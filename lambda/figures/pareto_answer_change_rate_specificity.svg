@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="760" viewBox="0 0 1160 760">
+<rect width="100%" height="100%" fill="#faf9f5"/>
+<text x="28" y="36" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#222">Answer Change Rate vs Specificity Pareto Frontiers</text>
+<text x="28" y="62" font-family="Arial, sans-serif" font-size="13" fill="#555">Specificity and the vertical metric are both objectives to maximize. Black rings and lines mark nondominated lambda values; lambda=1.0 has a dark center.</text>
+<circle cx="36" cy="82" r="6" fill="#3b6ea8" stroke="#fff"/>
+<text x="48" y="86" font-family="Arial, sans-serif" font-size="12" fill="#333">lambda=0.0</text>
+<circle cx="158" cy="82" r="6" fill="#55a868" stroke="#fff"/>
+<text x="170" y="86" font-family="Arial, sans-serif" font-size="12" fill="#333">lambda=0.1</text>
+<circle cx="280" cy="82" r="6" fill="#c44e52" stroke="#fff"/>
+<text x="292" y="86" font-family="Arial, sans-serif" font-size="12" fill="#333">lambda=0.3</text>
+<circle cx="402" cy="82" r="6" fill="#8172b3" stroke="#fff"/>
+<text x="414" y="86" font-family="Arial, sans-serif" font-size="12" fill="#333">lambda=1.0</text>
+<circle cx="524" cy="82" r="6" fill="#c8a641" stroke="#fff"/>
+<text x="536" y="86" font-family="Arial, sans-serif" font-size="12" fill="#333">lambda=3.0</text>
+<circle cx="646" cy="82" r="6" fill="#4aa3b5" stroke="#fff"/>
+<text x="658" y="86" font-family="Arial, sans-serif" font-size="12" fill="#333">lambda=10.0</text>
+<rect x="28" y="88" width="540" height="285" rx="8" fill="#fff" stroke="#ddd8ce"/>
+<text x="44" y="113" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#222">LLaMA-3-3B / openbook</text>
+<line x1="86.0" y1="130" x2="86.0" y2="327" stroke="#eee8dc"/>
+<line x1="86" y1="130.0" x2="546" y2="130.0" stroke="#eee8dc"/>
+<line x1="201.0" y1="130" x2="201.0" y2="327" stroke="#eee8dc"/>
+<line x1="86" y1="179.2" x2="546" y2="179.2" stroke="#eee8dc"/>
+<line x1="316.0" y1="130" x2="316.0" y2="327" stroke="#eee8dc"/>
+<line x1="86" y1="228.5" x2="546" y2="228.5" stroke="#eee8dc"/>
+<line x1="431.0" y1="130" x2="431.0" y2="327" stroke="#eee8dc"/>
+<line x1="86" y1="277.8" x2="546" y2="277.8" stroke="#eee8dc"/>
+<line x1="546.0" y1="130" x2="546.0" y2="327" stroke="#eee8dc"/>
+<line x1="86" y1="327.0" x2="546" y2="327.0" stroke="#eee8dc"/>
+<line x1="86" y1="327" x2="546" y2="327" stroke="#777"/>
+<line x1="86" y1="130" x2="86" y2="327" stroke="#777"/>
+<text x="86" y="354" font-family="Arial, sans-serif" font-size="12" fill="#555">Specificity</text>
+<text x="38" y="120" font-family="Arial, sans-serif" font-size="11" fill="#555">29.53</text>
+<text x="38" y="331" font-family="Arial, sans-serif" font-size="11" fill="#555">26.30</text>
+<text x="86" y="343" font-family="Arial, sans-serif" font-size="10" fill="#777">88.77</text>
+<text x="512" y="343" font-family="Arial, sans-serif" font-size="10" fill="#777">92.38</text>
+<path d="M 191.2 166.6 L 378.1 197.5 L 490.2 290.4" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="148.4" cy="197.5" r="5" fill="#3b6ea8" stroke="#fff" stroke-width="1.4"><title>lambda=0.0; specificity=89.26; Answer Change Rate=28.43</title></circle>
+<text x="156.4" y="201.5" font-family="Arial, sans-serif" font-size="10" fill="#333">0.0</text>
+<circle cx="141.8" cy="166.6" r="5" fill="#55a868" stroke="#fff" stroke-width="1.4"><title>lambda=0.1; specificity=89.21; Answer Change Rate=28.93</title></circle>
+<text x="149.8" y="170.6" font-family="Arial, sans-serif" font-size="10" fill="#333">0.1</text>
+<circle cx="191.2" cy="166.6" r="5" fill="#c44e52" stroke="#fff" stroke-width="1.4"><title>lambda=0.3; specificity=89.59; Answer Change Rate=28.93</title></circle>
+<text x="199.2" y="170.6" font-family="Arial, sans-serif" font-size="10" fill="#333">0.3</text>
+<circle cx="281.4" cy="197.5" r="6" fill="#8172b3" stroke="#111" stroke-width="2.2"><title>lambda=1.0; specificity=90.30; Answer Change Rate=28.43</title></circle>
+<text x="289.4" y="201.5" font-family="Arial, sans-serif" font-size="10" fill="#333">1.0</text>
+<circle cx="378.1" cy="197.5" r="5" fill="#c8a641" stroke="#fff" stroke-width="1.4"><title>lambda=3.0; specificity=91.06; Answer Change Rate=28.43</title></circle>
+<text x="386.1" y="201.5" font-family="Arial, sans-serif" font-size="10" fill="#333">3.0</text>
+<circle cx="490.2" cy="290.4" r="5" fill="#4aa3b5" stroke="#fff" stroke-width="1.4"><title>lambda=10.0; specificity=91.94; Answer Change Rate=26.90</title></circle>
+<text x="498.2" y="294.4" font-family="Arial, sans-serif" font-size="10" fill="#333">10.0</text>
+<circle cx="191.2" cy="166.6" r="10" fill="none" stroke="#111" stroke-width="2"/>
+<circle cx="378.1" cy="197.5" r="10" fill="none" stroke="#111" stroke-width="2"/>
+<circle cx="490.2" cy="290.4" r="10" fill="none" stroke="#111" stroke-width="2"/>
+<text x="44" y="359" font-family="Arial, sans-serif" font-size="12" fill="#333">Pareto lambda: 0.3, 3.0, 10.0</text>
+<rect x="604" y="88" width="540" height="285" rx="8" fill="#fff" stroke="#ddd8ce"/>
+<text x="620" y="113" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#222">LLaMA-3-3B / sqa</text>
+<line x1="662.0" y1="130" x2="662.0" y2="327" stroke="#eee8dc"/>
+<line x1="662" y1="130.0" x2="1122" y2="130.0" stroke="#eee8dc"/>
+<line x1="777.0" y1="130" x2="777.0" y2="327" stroke="#eee8dc"/>
+<line x1="662" y1="179.2" x2="1122" y2="179.2" stroke="#eee8dc"/>
+<line x1="892.0" y1="130" x2="892.0" y2="327" stroke="#eee8dc"/>
+<line x1="662" y1="228.5" x2="1122" y2="228.5" stroke="#eee8dc"/>
+<line x1="1007.0" y1="130" x2="1007.0" y2="327" stroke="#eee8dc"/>
+<line x1="662" y1="277.8" x2="1122" y2="277.8" stroke="#eee8dc"/>
+<line x1="1122.0" y1="130" x2="1122.0" y2="327" stroke="#eee8dc"/>
+<line x1="662" y1="327.0" x2="1122" y2="327.0" stroke="#eee8dc"/>
+<line x1="662" y1="327" x2="1122" y2="327" stroke="#777"/>
+<line x1="662" y1="130" x2="662" y2="327" stroke="#777"/>
+<text x="662" y="354" font-family="Arial, sans-serif" font-size="12" fill="#555">Specificity</text>
+<text x="614" y="120" font-family="Arial, sans-serif" font-size="11" fill="#555">32.90</text>
+<text x="614" y="331" font-family="Arial, sans-serif" font-size="11" fill="#555">29.83</text>
+<text x="662" y="343" font-family="Arial, sans-serif" font-size="10" fill="#777">92.06</text>
+<text x="1088" y="343" font-family="Arial, sans-serif" font-size="10" fill="#777">92.50</text>
+<path d="M 836.8 168.6 L 897.0 248.5 L 1037.6 288.4" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="746.4" cy="208.5" r="5" fill="#3b6ea8" stroke="#fff" stroke-width="1.4"><title>lambda=0.0; specificity=92.14; Answer Change Rate=31.68</title></circle>
+<text x="754.4" y="212.5" font-family="Arial, sans-serif" font-size="10" fill="#333">0.0</text>
+<circle cx="836.8" cy="168.6" r="5" fill="#55a868" stroke="#fff" stroke-width="1.4"><title>lambda=0.1; specificity=92.23; Answer Change Rate=32.30</title></circle>
+<text x="844.8" y="172.6" font-family="Arial, sans-serif" font-size="10" fill="#333">0.1</text>
+<circle cx="776.5" cy="208.5" r="5" fill="#c44e52" stroke="#fff" stroke-width="1.4"><title>lambda=0.3; specificity=92.17; Answer Change Rate=31.68</title></circle>
+<text x="784.5" y="212.5" font-family="Arial, sans-serif" font-size="10" fill="#333">0.3</text>
+<circle cx="897.0" cy="248.5" r="6" fill="#8172b3" stroke="#111" stroke-width="2.2"><title>lambda=1.0; specificity=92.29; Answer Change Rate=31.06</title></circle>
+<text x="905.0" y="252.5" font-family="Arial, sans-serif" font-size="10" fill="#333">1.0</text>
+<circle cx="1037.6" cy="288.4" r="5" fill="#c8a641" stroke="#fff" stroke-width="1.4"><title>lambda=3.0; specificity=92.42; Answer Change Rate=30.43</title></circle>
+<text x="1045.6" y="292.4" font-family="Arial, sans-serif" font-size="10" fill="#333">3.0</text>
+<circle cx="756.4" cy="288.4" r="5" fill="#4aa3b5" stroke="#fff" stroke-width="1.4"><title>lambda=10.0; specificity=92.15; Answer Change Rate=30.43</title></circle>
+<text x="764.4" y="292.4" font-family="Arial, sans-serif" font-size="10" fill="#333">10.0</text>
+<circle cx="836.8" cy="168.6" r="10" fill="none" stroke="#111" stroke-width="2"/>
+<circle cx="897.0" cy="248.5" r="10" fill="none" stroke="#111" stroke-width="2"/>
+<circle cx="1037.6" cy="288.4" r="10" fill="none" stroke="#111" stroke-width="2"/>
+<text x="620" y="359" font-family="Arial, sans-serif" font-size="12" fill="#333">Pareto lambda: 0.1, 1.0, 3.0</text>
+<rect x="28" y="425" width="540" height="285" rx="8" fill="#fff" stroke="#ddd8ce"/>
+<text x="44" y="450" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#222">Phi-3 / openbook</text>
+<line x1="86.0" y1="467" x2="86.0" y2="664" stroke="#eee8dc"/>
+<line x1="86" y1="467.0" x2="546" y2="467.0" stroke="#eee8dc"/>
+<line x1="201.0" y1="467" x2="201.0" y2="664" stroke="#eee8dc"/>
+<line x1="86" y1="516.2" x2="546" y2="516.2" stroke="#eee8dc"/>
+<line x1="316.0" y1="467" x2="316.0" y2="664" stroke="#eee8dc"/>
+<line x1="86" y1="565.5" x2="546" y2="565.5" stroke="#eee8dc"/>
+<line x1="431.0" y1="467" x2="431.0" y2="664" stroke="#eee8dc"/>
+<line x1="86" y1="614.8" x2="546" y2="614.8" stroke="#eee8dc"/>
+<line x1="546.0" y1="467" x2="546.0" y2="664" stroke="#eee8dc"/>
+<line x1="86" y1="664.0" x2="546" y2="664.0" stroke="#eee8dc"/>
+<line x1="86" y1="664" x2="546" y2="664" stroke="#777"/>
+<line x1="86" y1="467" x2="86" y2="664" stroke="#777"/>
+<text x="86" y="691" font-family="Arial, sans-serif" font-size="12" fill="#555">Specificity</text>
+<text x="38" y="457" font-family="Arial, sans-serif" font-size="11" fill="#555">13.98</text>
+<text x="38" y="668" font-family="Arial, sans-serif" font-size="11" fill="#555">11.50</text>
+<text x="86" y="680" font-family="Arial, sans-serif" font-size="10" fill="#777">93.69</text>
+<text x="512" y="680" font-family="Arial, sans-serif" font-size="10" fill="#777">95.11</text>
+<path d="M 141.8 514.8 L 490.2 565.5" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="141.8" cy="514.8" r="5" fill="#3b6ea8" stroke="#fff" stroke-width="1.4"><title>lambda=0.0; specificity=93.86; Answer Change Rate=13.38</title></circle>
+<text x="149.8" y="518.8" font-family="Arial, sans-serif" font-size="10" fill="#333">0.0</text>
+<circle cx="220.4" cy="565.5" r="5" fill="#55a868" stroke="#fff" stroke-width="1.4"><title>lambda=0.1; specificity=94.10; Answer Change Rate=12.74</title></circle>
+<text x="228.4" y="569.5" font-family="Arial, sans-serif" font-size="10" fill="#333">0.1</text>
+<circle cx="314.1" cy="616.2" r="5" fill="#c44e52" stroke="#fff" stroke-width="1.4"><title>lambda=0.3; specificity=94.40; Answer Change Rate=12.10</title></circle>
+<text x="322.1" y="620.2" font-family="Arial, sans-serif" font-size="10" fill="#333">0.3</text>
+<circle cx="370.3" cy="616.2" r="6" fill="#8172b3" stroke="#111" stroke-width="2.2"><title>lambda=1.0; specificity=94.57; Answer Change Rate=12.10</title></circle>
+<text x="378.3" y="620.2" font-family="Arial, sans-serif" font-size="10" fill="#333">1.0</text>
+<circle cx="490.2" cy="565.5" r="5" fill="#c8a641" stroke="#fff" stroke-width="1.4"><title>lambda=3.0; specificity=94.94; Answer Change Rate=12.74</title></circle>
+<text x="498.2" y="569.5" font-family="Arial, sans-serif" font-size="10" fill="#333">3.0</text>
+<circle cx="411.6" cy="565.5" r="5" fill="#4aa3b5" stroke="#fff" stroke-width="1.4"><title>lambda=10.0; specificity=94.70; Answer Change Rate=12.74</title></circle>
+<text x="419.6" y="569.5" font-family="Arial, sans-serif" font-size="10" fill="#333">10.0</text>
+<circle cx="141.8" cy="514.8" r="10" fill="none" stroke="#111" stroke-width="2"/>
+<circle cx="490.2" cy="565.5" r="10" fill="none" stroke="#111" stroke-width="2"/>
+<text x="44" y="696" font-family="Arial, sans-serif" font-size="12" fill="#333">Pareto lambda: 0.0, 3.0</text>
+<rect x="604" y="425" width="540" height="285" rx="8" fill="#fff" stroke="#ddd8ce"/>
+<text x="620" y="450" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#222">Phi-3 / sqa</text>
+<line x1="662.0" y1="467" x2="662.0" y2="664" stroke="#eee8dc"/>
+<line x1="662" y1="467.0" x2="1122" y2="467.0" stroke="#eee8dc"/>
+<line x1="777.0" y1="467" x2="777.0" y2="664" stroke="#eee8dc"/>
+<line x1="662" y1="516.2" x2="1122" y2="516.2" stroke="#eee8dc"/>
+<line x1="892.0" y1="467" x2="892.0" y2="664" stroke="#eee8dc"/>
+<line x1="662" y1="565.5" x2="1122" y2="565.5" stroke="#eee8dc"/>
+<line x1="1007.0" y1="467" x2="1007.0" y2="664" stroke="#eee8dc"/>
+<line x1="662" y1="614.8" x2="1122" y2="614.8" stroke="#eee8dc"/>
+<line x1="1122.0" y1="467" x2="1122.0" y2="664" stroke="#eee8dc"/>
+<line x1="662" y1="664.0" x2="1122" y2="664.0" stroke="#eee8dc"/>
+<line x1="662" y1="664" x2="1122" y2="664" stroke="#777"/>
+<line x1="662" y1="467" x2="662" y2="664" stroke="#777"/>
+<text x="662" y="691" font-family="Arial, sans-serif" font-size="12" fill="#555">Specificity</text>
+<text x="614" y="457" font-family="Arial, sans-serif" font-size="11" fill="#555">12.74</text>
+<text x="614" y="668" font-family="Arial, sans-serif" font-size="11" fill="#555">10.11</text>
+<text x="662" y="680" font-family="Arial, sans-serif" font-size="10" fill="#777">96.61</text>
+<text x="1088" y="680" font-family="Arial, sans-serif" font-size="10" fill="#777">98.15</text>
+<circle cx="717.8" cy="619.0" r="5" fill="#3b6ea8" stroke="#fff" stroke-width="1.4"><title>lambda=0.0; specificity=96.80; Answer Change Rate=10.71</title></circle>
+<text x="725.8" y="623.0" font-family="Arial, sans-serif" font-size="10" fill="#333">0.0</text>
+<circle cx="735.4" cy="565.5" r="5" fill="#55a868" stroke="#fff" stroke-width="1.4"><title>lambda=0.1; specificity=96.86; Answer Change Rate=11.43</title></circle>
+<text x="743.4" y="569.5" font-family="Arial, sans-serif" font-size="10" fill="#333">0.1</text>
+<circle cx="742.4" cy="512.0" r="5" fill="#c44e52" stroke="#fff" stroke-width="1.4"><title>lambda=0.3; specificity=96.88; Answer Change Rate=12.14</title></circle>
+<text x="750.4" y="516.0" font-family="Arial, sans-serif" font-size="10" fill="#333">0.3</text>
+<circle cx="833.9" cy="512.0" r="6" fill="#8172b3" stroke="#111" stroke-width="2.2"><title>lambda=1.0; specificity=97.19; Answer Change Rate=12.14</title></circle>
+<text x="841.9" y="516.0" font-family="Arial, sans-serif" font-size="10" fill="#333">1.0</text>
+<circle cx="932.5" cy="512.0" r="5" fill="#c8a641" stroke="#fff" stroke-width="1.4"><title>lambda=3.0; specificity=97.52; Answer Change Rate=12.14</title></circle>
+<text x="940.5" y="516.0" font-family="Arial, sans-serif" font-size="10" fill="#333">3.0</text>
+<circle cx="1066.2" cy="512.0" r="5" fill="#4aa3b5" stroke="#fff" stroke-width="1.4"><title>lambda=10.0; specificity=97.96; Answer Change Rate=12.14</title></circle>
+<text x="1074.2" y="516.0" font-family="Arial, sans-serif" font-size="10" fill="#333">10.0</text>
+<circle cx="1066.2" cy="512.0" r="10" fill="none" stroke="#111" stroke-width="2"/>
+<text x="620" y="696" font-family="Arial, sans-serif" font-size="12" fill="#333">Pareto lambda: 10.0</text>
+</svg>
