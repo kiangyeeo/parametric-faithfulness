@@ -383,7 +383,13 @@ def unlearn_single(model_id, tokenizer, args, target, step_idx, cots_train, cots
       optimizer.zero_grad()
 
       for step, batch in enumerate(train_dataloader):
-        loss = compute_loss(model, oracle_model, batch, loss_type=args.method) 
+        loss = compute_loss(
+          model,
+          oracle_model,
+          batch,
+          loss_type=args.method,
+          KL_coeff=getattr(args, 'rt_lambda', 1.0),
+        )
 
         loss.backward()
         optimizer.step()
@@ -419,22 +425,27 @@ def unlearn_single(model_id, tokenizer, args, target, step_idx, cots_train, cots
     }
 
     if args.mmlu or args.gsm:
-      logdir = resdir.replace("chkp", "gen_cap") + f"{args.lr}/"
-      os.makedirs(logdir, exist_ok=True)
+        from lm_eval import simple_evaluate
+        logdir = resdir.replace("chkp", "gen_cap") + f"{args.lr}/"
+        os.makedirs(logdir, exist_ok=True)
 
-      print("Running evaluation from python")
-      result = run_lm_eval(resdir + name, logdir + name)
-      result_lines = result.split("\n")
-      score_line = result_lines[-7]
-      result_line_parts = score_line.split("|")
-      assert result_line_parts[1].strip() == 'mmlu', "Error when retrieving scores"
-      mmlu_acc, err = result_line_parts[-4], result_line_parts[-2]
-      # print(f"Accuracy and error: {acc} +- {err}")
-      key = 'mmlu_results' if args.mmlu else 'gsm8k_results'
-      return_dict[key] = mmlu_acc
+        print("Running MMLU via simple_evaluate ...")
+        res = simple_evaluate(
+            model="hf",
+            model_args=f"pretrained={resdir + name}",
+            tasks=["mmlu"],
+            batch_size="auto:4",
+            device="auto",
+            num_fewshot=0,
+            # limit=0.25
+        )
+        mmlu_acc = res["results"]["mmlu"]["acc,none"]
+        key = "mmlu_results" if args.mmlu else "gsm8k_results"
+        return_dict[key] = float(mmlu_acc)
+        print(f"MMLU acc = {mmlu_acc}")
 
-      print("Deleting model directory")
-      shutil.rmtree(resdir + name, ignore_errors=False, onerror=None)
+        print("Deleting model directory")
+        shutil.rmtree(resdir + name, ignore_errors=True)
 
     return return_dict
 
@@ -444,7 +455,7 @@ def load_ids(fin, stepwise=False):
       with open(fin, 'r') as infile:
           for line in infile:
               jsonline = json.loads(line)
-              id = jsonline['question']
+              id = jsonline['id']
               if stepwise:
                   id = f"{id}_{jsonline['step_idx']}"
               ids.add(id)
@@ -472,6 +483,8 @@ def make_parser():
                         help="Number of unlearning epochs")
     parser.add_argument('--lr', type=float, default=5e-5,
                         help="Learning rate for NPO")
+    parser.add_argument('--rt_lambda', type=float, default=1.0,
+                        help="Coefficient for the retain KL regularization term K_RT")
     parser.add_argument('--new_cot', action='store_true', help="Force generation of a fresh batch of CoTs.")
     parser.add_argument('--pos', action='store_true', help="Filter out function tokens in unlearning.")
     parser.add_argument('--ff2', action='store_true', help="Optimize only the ff2 layers")
@@ -543,7 +556,8 @@ def main():
     resdir = f"{root_name}/{args.dataset}/{short_model}/"
     os.makedirs(resdir, exist_ok=True)
     # No POS, no ff2, unlearn full
-    logfile_name = f"{args.method}_{args.strategy}_s={args.stepwise}_lr={str(args.lr)}_rs={args.seed}_pos={args.pos}_ff2={args.ff2}.out"
+    lambda_suffix = "" if args.rt_lambda == 1.0 else f"_lambda={args.rt_lambda:g}"
+    logfile_name = f"{args.method}_{args.strategy}_s={args.stepwise}_lr={str(args.lr)}{lambda_suffix}_rs={args.seed}_pos={args.pos}_ff2={args.ff2}.out"
     
     # Restore previous results 
     ids = load_ids(resdir + logfile_name, stepwise=args.stepwise)
@@ -572,7 +586,8 @@ def main():
               'initial_cot_probs': target['cot_probs'],
               'initial_probs': target['nocot_probs'],
               'prediction': int(np.argmax(target['nocot_probs'])),
-              'cot_prediction': int(np.argmax(target['cot_probs']))
+              'cot_prediction': int(np.argmax(target['cot_probs'])),
+              'rt_lambda': args.rt_lambda,
           }
 
           if args.stepwise:

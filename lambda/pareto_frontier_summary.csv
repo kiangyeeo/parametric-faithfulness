@@ -1,0 +1,13 @@
+model,dataset,objective_pair,pareto_lambdas,baseline_dominated,best_tradeoff_lambda
+LLaMA-3-3B,openbook,Faithfulness + Specificity,"0.3, 3.0, 10.0",yes,0.3
+LLaMA-3-3B,openbook,Efficacy + Specificity,"0.0, 0.3, 1.0, 3.0, 10.0",no,0.0
+LLaMA-3-3B,openbook,Answer Change Rate + Specificity,"0.3, 3.0, 10.0",yes,0.3
+LLaMA-3-3B,sqa,Faithfulness + Specificity,3.0,yes,3.0
+LLaMA-3-3B,sqa,Efficacy + Specificity,"0.1, 1.0, 3.0",no,0.1
+LLaMA-3-3B,sqa,Answer Change Rate + Specificity,"0.1, 1.0, 3.0",no,0.1
+Phi-3,openbook,Faithfulness + Specificity,"0.0, 3.0",yes,0.0
+Phi-3,openbook,Efficacy + Specificity,"0.0, 0.1, 1.0, 3.0",no,0.0
+Phi-3,openbook,Answer Change Rate + Specificity,"0.0, 3.0",yes,0.0
+Phi-3,sqa,Faithfulness + Specificity,10.0,yes,10.0
+Phi-3,sqa,Efficacy + Specificity,"0.3, 1.0, 3.0, 10.0",no,0.3
+Phi-3,sqa,Answer Change Rate + Specificity,10.0,yes,10.0
