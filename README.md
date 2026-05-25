@@ -123,9 +123,10 @@ This project was completed collaboratively by the following five students from *
 |  May 17  | Metrics + visualization                          | Wanyi Zhou                |
 |  May 21  | Midterm presentation                             | Jialong Chen              |
 |  May 24  | Reproduction supplement (MMLU, CI, llm-as-judge) | Kengyi Wang               |
-| June 07  | Extension: $\lambda$ ablation                    | Jialong Chen              |
-| June 07  | SimNPO experiments and analyze                   | Tianle Chen               |
-| June 07  | Explore new methods to replace                   | Wanyi Zhou/Junyan Liu     |
+| June 07  | $\lambda$ sweeps and analysis                    | Jialong Chen              |
+| June 07  | SimNPO experiments and analysis                  | Tianle Chen               |
+| June 07  | LMF experiments and analysis                     | Junyan Liu                |
+| June 07  | Explore new methods to replace                   | Wanyi Zhou                |
 | June 14  | Final report                                     | Kengyi Wang               |
 | June 25  | Modify and submit                                | All                       |
 
