@@ -23,6 +23,8 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
 **Extension Results:** [SimNPO instead of NPO results](./simnpo_results)
 
+**Final Report:**  [Final Report: Reproduce FUR](https://www.overleaf.com/read/bqgjwxvjqsmk#53ab34)
+
 ## 🚀 Quick Start Reproduction
 
 1. **Set up the environment and install packages.** 
