@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="440" viewBox="0 0 980 440">
+<rect width="100%" height="100%" fill="#faf9f5"/>
+<text x="24" y="32" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#222">High-Lambda Target-Step Retention</text>
+<text x="24" y="52" font-family="Arial, sans-serif" font-size="12" fill="#555">Average final target-step logprob delta vs lambda=1.0. Positive means less forgetting.</text>
+<line x1="72" y1="348.6" x2="952" y2="348.6" stroke="#555" stroke-width="1.2"/>
+<line x1="72" y1="54" x2="72" y2="350" stroke="#777"/>
+<rect x="89.6" y="111.1" width="74.8" height="237.5" fill="#4aa3b5"/>
+<text x="127.0" y="106.1" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">5.22</text>
+<text transform="translate(127.0,362) rotate(45)" font-family="Arial, sans-serif" font-size="10" fill="#333">LLaMA-3/openbook/λ=10.0</text>
+<rect x="199.6" y="279.2" width="74.8" height="69.3" fill="#c8a641"/>
+<text x="237.0" y="274.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">1.52</text>
+<text transform="translate(237.0,362) rotate(45)" font-family="Arial, sans-serif" font-size="10" fill="#333">LLaMA-3/openbook/λ=3.0</text>
+<rect x="309.6" y="132.7" width="74.8" height="215.8" fill="#4aa3b5"/>
+<text x="347.0" y="127.7" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">4.74</text>
+<text transform="translate(347.0,362) rotate(45)" font-family="Arial, sans-serif" font-size="10" fill="#333">LLaMA-3/sqa/λ=10.0</text>
+<rect x="419.6" y="294.1" width="74.8" height="54.5" fill="#c8a641"/>
+<text x="457.0" y="289.1" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">1.20</text>
+<text transform="translate(457.0,362) rotate(45)" font-family="Arial, sans-serif" font-size="10" fill="#333">LLaMA-3/sqa/λ=3.0</text>
+<rect x="529.6" y="88.2" width="74.8" height="260.4" fill="#4aa3b5"/>
+<text x="567.0" y="83.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">5.72</text>
+<text transform="translate(567.0,362) rotate(45)" font-family="Arial, sans-serif" font-size="10" fill="#333">Phi-3/openbook/λ=10.0</text>
+<rect x="639.6" y="206.4" width="74.8" height="142.2" fill="#c8a641"/>
+<text x="677.0" y="201.4" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">3.12</text>
+<text transform="translate(677.0,362) rotate(45)" font-family="Arial, sans-serif" font-size="10" fill="#333">Phi-3/openbook/λ=3.0</text>
+<rect x="749.6" y="293.6" width="74.8" height="54.9" fill="#4aa3b5"/>
+<text x="787.0" y="288.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">1.21</text>
+<text transform="translate(787.0,362) rotate(45)" font-family="Arial, sans-serif" font-size="10" fill="#333">Phi-3/sqa/λ=10.0</text>
+<rect x="859.6" y="315.8" width="74.8" height="32.7" fill="#c8a641"/>
+<text x="897.0" y="310.8" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">0.72</text>
+<text transform="translate(897.0,362) rotate(45)" font-family="Arial, sans-serif" font-size="10" fill="#333">Phi-3/sqa/λ=3.0</text>
+<text x="18" y="62" font-family="Arial, sans-serif" font-size="10" fill="#555">6.47</text>
+<text x="18" y="350" font-family="Arial, sans-serif" font-size="10" fill="#555">-0.03</text>
+</svg>
