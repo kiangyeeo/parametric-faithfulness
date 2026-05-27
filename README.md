@@ -13,7 +13,7 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
 **Project Proposal:** [Group1_Proposal.pdf](./docs/Group1_Proposal.pdf)
 
-**Presentation Slides:** [parametric-faithfulness.pptx](./presentation/parametric-faithfulness.pptx)
+**Presentation Slides:** [parametric-faithfulness.pptx](./docs/parametric-faithfulness.pptx)
 
 **Data:** [OBQA&SQA](./data)
 
@@ -22,6 +22,8 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 **Numerical and visual results:**  [Reproduction results](./evaluate_and_visualize)
 
 **Extension Results:** [SimNPO instead of NPO results](./simnpo_results)
+
+**Final Report:**  [Final Report: Reproduce FUR](https://www.overleaf.com/read/bqgjwxvjqsmk#53ab34)
 
 ## 🚀 Quick Start Reproduction
 
@@ -95,17 +97,16 @@ This project was completed collaboratively by the following five students from *
 - [x] Implement Lanham mistake-injection baseline 
 - [x] Compute FF-HARD / FF-SOFT metrics, and other results.
 - [x] Generate plots to compare and show the results
-- [ ] MMLU
-- [ ] LLM-as-Judge
+- [x] MMLU
+- [x] LLM-as-Judge
 - [ ] Confidence Interval
 
 ### Phase 2 · Extension
 
-- [ ] Design $\lambda$ sweep range & run ablation
+- [x] Design $\lambda$ sweep range & run ablation
 - [x] Run SimNPO instead of NPO under the same setup
-- [ ] Analyze SimNPO  results
 - [ ] Explore more new alternative methods under the same setup
-- [ ] Compare against NPO
+- [ ] Analyze extension results
 - [ ] Integrate results from both extension tracks
 - [ ] Final report completed
 
@@ -122,9 +123,10 @@ This project was completed collaboratively by the following five students from *
 |  May 17  | Metrics + visualization                          | Wanyi Zhou                |
 |  May 21  | Midterm presentation                             | Jialong Chen              |
 |  May 24  | Reproduction supplement (MMLU, CI, llm-as-judge) | Kengyi Wang               |
-| June 07  | Extension: $\lambda$ ablation                    | Jialong Chen              |
-| June 07  | SimNPO experiments and analyze                   | Tianle Chen               |
-| June 07  | Explore new methods to replace                   | Wanyi Zhou/Junyan Liu     |
+| June 07  | $\lambda$ sweeps and analysis                    | Jialong Chen              |
+| June 07  | SimNPO experiments and analysis                  | Tianle Chen               |
+| June 07  | LMF experiments and analysis                     | Junyan Liu                |
+| June 07  | Explore new methods to replace                   | Wanyi Zhou                |
 | June 14  | Final report                                     | Kengyi Wang               |
 | June 25  | Modify and submit                                | All                       |
 
