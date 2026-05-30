@@ -36,3 +36,4 @@ checkpoints/
 *.pth
 chkp/
 gen_cap
+ablation/
