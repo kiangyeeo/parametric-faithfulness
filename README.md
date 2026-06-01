@@ -21,7 +21,7 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
 **Numerical and visual results:**  [Reproduction results](./evaluate_and_visualize)
 
-**Extension Results:** [SimNPO instead of NPO results](./simnpo_results)
+**Extension Results:** [SimNPO instead of NPO results](./simnpo_results), [LMF+KL ablation and results](./lmf)
 
 **Final Report:**  [Final Report: Reproduce FUR](https://www.overleaf.com/read/bqgjwxvjqsmk#53ab34)
 

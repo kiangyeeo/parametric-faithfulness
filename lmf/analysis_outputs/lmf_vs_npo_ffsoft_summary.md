@@ -1,6 +1,6 @@
 # LMF+KL vs NPO+KL FF-SOFT comparison
 
-Common step pairs: 784. CSV: `analysis_outputs\lmf_vs_npo_ffsoft_steps.csv`.
+Common step pairs: 784. CSV: `lmf_vs_npo_ffsoft_steps.csv`.
 
 Read report `(dataset, model, npo_good, npo_bad, lmf_good, lmf_bad)`:
 
