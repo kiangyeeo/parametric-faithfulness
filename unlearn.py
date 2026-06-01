@@ -85,7 +85,7 @@ def get_per_sample_nll_and_length(logits, labels):
 
     return per_sample_nll, response_length
 
-def compute_loss(model, oracle_model, inputs, loss_type='npo_grad_diff', ref_policy='fine_tuned', beta=0.1, npo_coeff=1.0, grad_diff_coeff=1.0, KL_coeff=1.0, adv_epsilon=1e-2, adv_steps=1, adv_lr=None, return_outputs=False):
+def compute_loss(model, oracle_model, inputs, loss_type='npo_grad_diff', ref_policy='fine_tuned', beta=0.1, npo_coeff=1.0, grad_diff_coeff=1.0, KL_coeff=1.0, return_outputs=False):
         ### Implement the NPO
         if loss_type == 'npo':
             forget_inputs, _ = inputs
@@ -156,87 +156,6 @@ def compute_loss(model, oracle_model, inputs, loss_type='npo_grad_diff', ref_pol
 
             # minimum KL divergence
             retain_loss = nn.functional.kl_div(current_probs, retain_probs, reduction='batchmean', log_target=True)
-            loss = npo_coeff * forget_loss + KL_coeff * retain_loss
-
-        elif loss_type == 'advnpo_KL':
-            forget_inputs, retain_inputs = inputs
-            input_ids, labels, attention_mask = forget_inputs
-
-            input_embeds = model.get_input_embeddings()(input_ids).detach()
-            perturb_mask = attention_mask.unsqueeze(-1).to(input_embeds.dtype)
-            delta = torch.zeros_like(input_embeds, requires_grad=True)
-            step_size = adv_epsilon if adv_lr is None else adv_lr
-
-            for _ in range(adv_steps):
-                adv_outputs = model(
-                    inputs_embeds=input_embeds + delta * perturb_mask,
-                    labels=labels,
-                    attention_mask=attention_mask
-                )
-                adv_nll = get_batch_loss(adv_outputs.logits, labels).mean()
-                grad = torch.autograd.grad(
-                    adv_nll,
-                    delta,
-                    retain_graph=False,
-                    create_graph=False
-                )[0]
-
-                grad = grad * perturb_mask
-                grad_norm = grad.float().view(grad.size(0), -1).norm(p=2, dim=1)
-                grad_norm = grad_norm.clamp(min=1e-12).view(-1, 1, 1).to(grad.dtype)
-                delta = delta - step_size * grad / grad_norm
-                delta = delta * perturb_mask
-
-                delta_norm = delta.float().view(delta.size(0), -1).norm(p=2, dim=1)
-                delta_scale = (adv_epsilon / delta_norm.clamp(min=1e-12)).clamp(max=1.0)
-                delta = (delta * delta_scale.view(-1, 1, 1).to(delta.dtype)).detach()
-                delta.requires_grad_(True)
-
-            outputs = model(
-                inputs_embeds=input_embeds + delta.detach() * perturb_mask,
-                labels=labels,
-                attention_mask=attention_mask
-            )
-            forget_loss_current = get_batch_loss(outputs.logits, labels)
-
-            if ref_policy == 'fine_tuned':
-                with torch.no_grad():
-                    forget_outputs_oracle = oracle_model(
-                        input_ids,
-                        labels=labels,
-                        attention_mask=attention_mask
-                    )
-                    forget_logits_oracle = forget_outputs_oracle.logits
-                    forget_loss_oracle = get_batch_loss(forget_logits_oracle, labels)
-                neg_log_ratios = forget_loss_current - forget_loss_oracle
-            else:
-                raise NotImplementedError
-            forget_loss = -F.logsigmoid(beta * neg_log_ratios).mean() * 2 / beta
-
-            retain_input_ids, retain_labels, retain_attention_mask = retain_inputs
-            with torch.no_grad():
-                retain_outputs = oracle_model(
-                    retain_input_ids,
-                    labels=retain_labels,
-                    attention_mask=retain_attention_mask
-                )
-            retain_probs = F.log_softmax(retain_outputs.logits, dim=-1)
-            retain_probs = retain_probs.view(-1, retain_outputs.logits.shape[-1])
-
-            current_outputs = model(
-                retain_input_ids,
-                labels=retain_labels,
-                attention_mask=retain_attention_mask
-            )
-            current_probs = F.log_softmax(current_outputs.logits, dim=-1)
-            current_probs = current_probs.view(-1, current_outputs.logits.shape[-1])
-
-            retain_loss = nn.functional.kl_div(
-                current_probs,
-                retain_probs,
-                reduction='batchmean',
-                log_target=True
-            )
             loss = npo_coeff * forget_loss + KL_coeff * retain_loss
 
         elif loss_type == 'lmf_KL':
