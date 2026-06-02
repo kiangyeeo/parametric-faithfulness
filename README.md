@@ -59,6 +59,12 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
    ```bash
    bash repro/run_all.sh
+   export HUGGINGFACE_HUB_CACHE=/inspire/hdd/project/fdu-aidake-cfff/public/.huggingface/.hub
+   export TRANSFORMERS_CACHE=/inspire/hdd/project/fdu-aidake-cfff/public/.huggingface/.transformers
+   python -m repro.run_repro --short_model Phi-3 --dataset openbook --lr 1e-4 --mmlu 10 6repro2 not ok
+   python -m repro.run_repro --short_model Phi-3 --dataset sqa --lr 5e-5 --mmlu 10 1mmlu
+   python -m repro.run_repro --short_model LLaMA-3-3B --dataset openbook --lr 3e-5 --mmlu 10       6repro1
+   python -m repro.run_repro --short_model LLaMA-3-3B --dataset sqa --lr 3e-5 --mmlu 10 1repro not ok
    ```
 
    Unlearn results will be saved in `./final_results`.
