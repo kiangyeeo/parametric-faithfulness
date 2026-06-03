@@ -17,7 +17,7 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
 **Data:** [OBQA](./data/openbookqa), [SQA](./data/strategyqa),  [samples](./data/50_sample_data)
 
-**Reproduction Results:**  [CoT & noCoT results](./final_cot),  [unlearning results](./final_results),  [Add-mistake baseline results](./mistake_stats), [MMLU results](./mmlu_results), [50-samples results](./sample_results), [Numerical & visualization](./evaluate_and_visualize)
+**Reproduction Results:**  [CoT & noCoT results](./final_cot),  [unlearning results](./final_results),  [Add-mistake baseline results](./mistake_stats), [MMLU results](./mmlu_results), [50-samples results](./sample_results), [Numerical & visualization](./sample_results/evaluate_and_visualize)
 
 **Extension Results:** [SimNPO](./simnpo_results), [LMF](./lmf), [lambda-sweep](./lambda)
 
@@ -33,9 +33,9 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
    python -m spacy download en_core_web_sm
    python -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab')"
    ```
-   
+
    **Tips:**  If you are using Qizhi (http://qz.cfff.fudan.edu.cn/), you can directly use the environment we make by `conda activate pf`.
-   
+
 2. **Set your Huggingface Token. Make sure you have the access to use Llama-3.2-3B.**
 
    ```bash
@@ -51,7 +51,7 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
    ```
 
    The CoT & noCoT results will be saved in `./final_cot`. 
-   
+
 4. **Run the unlearning experiment.**
 
    ```bash
@@ -76,10 +76,16 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
    python mistakes_repro.py --short_model LLaMA-3-3B --dataset openbook
    python mistakes_repro.py --short_model LLaMA-3-3B --dataset sqa
    ```
-   
+
    The notebook will write injected mistakes to `./mistake_results`. Evaluation results will be  written to `./mistake_stats`.
-   
-6. Compute scores
+
+6. **Compute metrics.**
+
+
+
+
+
+
 
 ## 👨‍💻 Team Members
 
