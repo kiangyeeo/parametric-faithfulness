@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 # repro/run_all.sh
 #
-# 串行跑完 2x2 复现的全部 4 组合。建议第一次先 SMOKE=1 跑一遍，
-# pipeline 验通后再 unset SMOKE 跑正式实验。
+# 串行跑完 2x2 复现的全部 4 组合。PRE=1 时只生成初始 CoT/noCoT
+# 缓存结果，不执行 unlearning；正式实验 unset PRE。
 #
 # 用法：
 #   export HF_TOKEN=hf_xxxxx       # 必须，Llama 是 gated
-#   SMOKE=1 bash repro/run_all.sh  # smoke test (~10 分钟/组合)
+#   PRE=1 bash repro/run_all.sh    # 只生成初始 CoT/noCoT 结果
 #   bash repro/run_all.sh          # 正式 run (~数小时/组合，看 GPU)
 
 set -e
 cd "$(dirname "$0")/.."   # cd 到仓库根
 
-SMOKE_FLAG=""
-if [[ "${SMOKE:-0}" == "1" ]]; then
-    SMOKE_FLAG="--smoke"
-    echo ">>> SMOKE 模式：每组合只跑 5 条 × 2 epoch"
+EXTRA_ARGS=()
+if [[ "${PRE:-0}" == "1" ]]; then
+    EXTRA_ARGS=(--n_unlearn 0)
+    echo ">>> PRE 模式：只生成初始 CoT/noCoT 结果，跳过 unlearning"
 fi
 
 # 4 个组合 (short_model, dataset, best_lr)
@@ -36,7 +36,7 @@ for r in "${RUNS[@]}"; do
         --short_model "$model" \
         --dataset "$dataset" \
         --lr "$lr" \
-        $SMOKE_FLAG
+        "${EXTRA_ARGS[@]}"
 done
 
-echo ">>> 全部完成。结果在 final_results/ （或 smoke_results/）"
+echo ">>> 全部完成。初始 CoT/noCoT 缓存在 final_cot/，正式结果在 final_results/"
