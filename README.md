@@ -110,8 +110,6 @@ This project was completed collaboratively by the following five students from *
 - [x] Compute FF-HARD / FF-SOFT metrics, and other results.
 - [x] Generate plots to compare and show the results
 - [x] MMLU
-- [x] LLM-as-Judge
-- [ ] Confidence Interval
 
 ### Phase 2 · Extension
 
@@ -126,21 +124,21 @@ This project was completed collaboratively by the following five students from *
 
 ## 🗓️ Timeline
 
-|   DDL    | Milestone                                        | Owner                     |
-| :------: | :----------------------------------------------- | :------------------------ |
-| April 26 | Determine project and communication              | All                       |
-| April 30 | Proposal and code&data                           | All                       |
-|  May 14  | Environment setup + CoT generation + unlearning  | Tianle Chen / Kengyi Wang |
-|  May 16  | Add mistake baseline                             | Junyan Liu                |
-|  May 17  | Metrics + visualization                          | Wanyi Zhou                |
-|  May 21  | Midterm presentation                             | Jialong Chen              |
-|  May 24  | Reproduction supplement (MMLU, CI, llm-as-judge) | Kengyi Wang               |
-| June 07  | $\lambda$ sweeps and analysis                    | Jialong Chen              |
-| June 07  | SimNPO experiments and analysis                  | Tianle Chen               |
-| June 07  | LMF experiments and analysis                     | Junyan Liu                |
-| June 07  | Explore new methods to replace                   | Wanyi Zhou                |
-| June 14  | Final report                                     | Kengyi Wang               |
-| June 25  | Modify and submit                                | All                       |
+|   DDL    | Milestone                                       | Owner                     |
+| :------: | :---------------------------------------------- | :------------------------ |
+| April 26 | Determine project and communication             | All                       |
+| April 30 | Proposal and code&data                          | All                       |
+|  May 14  | Environment setup + CoT generation + unlearning | Tianle Chen / Kengyi Wang |
+|  May 16  | Add mistake baseline                            | Junyan Liu                |
+|  May 17  | Metrics + visualization                         | Wanyi Zhou                |
+|  May 21  | Midterm presentation                            | Jialong Chen              |
+|  May 24  | Reproduction supplement (MMLU, CI)              | Kengyi Wang               |
+| June 07  | $\lambda$ sweeps and analysis                   | Jialong Chen              |
+| June 07  | SimNPO experiments and analysis                 | Tianle Chen               |
+| June 07  | LMF experiments and analysis                    | Junyan Liu                |
+| June 07  | Explore new methods to replace                  | Wanyi Zhou                |
+| June 14  | Final report                                    | Kengyi Wang               |
+| June 25  | Modify and submit                               | All                       |
 
 ## 🙏 Acknowledgments
 
