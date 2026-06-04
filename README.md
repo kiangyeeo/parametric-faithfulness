@@ -81,11 +81,11 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
 6. **Compute metrics.**
 
+   ```bash
+   python repro/compute_metrics.py
+   ```
 
-
-
-
-
+   The results will be save in `repro/metrics_summary.csv` and `repro/metrics_summary.json`.
 
 ## 👨‍💻 Team Members
 
