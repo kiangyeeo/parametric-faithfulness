@@ -62,6 +62,29 @@ def get_batch_loss(output, labels):
 
     return loss
 
+def get_per_sample_nll_and_length(logits, labels):
+    # logits: [B, T, V]
+    # labels: [B, T]
+
+    shift_logits = logits[:, :-1, :].contiguous()
+    shift_labels = labels[:, 1:].contiguous()
+
+    loss_fct = nn.CrossEntropyLoss(reduction='none')
+
+    token_loss = loss_fct(
+        shift_logits.view(-1, shift_logits.size(-1)),
+        shift_labels.view(-1)
+    )
+
+    token_loss = token_loss.view(shift_labels.size())
+
+    valid_mask = shift_labels.ne(-100)
+
+    per_sample_nll = (token_loss * valid_mask).sum(dim=1)
+    response_length = valid_mask.sum(dim=1).clamp(min=1)
+
+    return per_sample_nll, response_length
+
 def compute_loss(model, oracle_model, inputs, loss_type='npo_grad_diff', ref_policy='fine_tuned', beta=0.1, npo_coeff=1.0, grad_diff_coeff=1.0, KL_coeff=1.0, return_outputs=False):
         ### Implement the NPO
         if loss_type == 'npo':
@@ -133,6 +156,107 @@ def compute_loss(model, oracle_model, inputs, loss_type='npo_grad_diff', ref_pol
 
             # minimum KL divergence
             retain_loss = nn.functional.kl_div(current_probs, retain_probs, reduction='batchmean', log_target=True)
+            loss = npo_coeff * forget_loss + KL_coeff * retain_loss
+
+        elif loss_type == 'lmf_KL':
+            forget_inputs, retain_inputs = inputs
+            input_ids, labels, attention_mask = forget_inputs
+
+            outputs = model(input_ids, labels=labels, attention_mask=attention_mask)
+
+            # Logit-margin flattening: make forget-token logits less peaked.
+            shift_logits = outputs.logits[:, :-1, :].contiguous().float()
+            shift_labels = labels[:, 1:].contiguous()
+            forget_mask = shift_labels.ne(-100)
+            token_margin = shift_logits.max(dim=-1).values - shift_logits.mean(dim=-1)
+            token_loss = token_margin.square()
+            forget_loss = (token_loss * forget_mask).sum() / forget_mask.sum().clamp(min=1)
+
+            retain_input_ids, retain_labels, retain_attention_mask = retain_inputs
+            with torch.no_grad():
+                retain_outputs = oracle_model(
+                    retain_input_ids,
+                    labels=retain_labels,
+                    attention_mask=retain_attention_mask
+                )
+
+            current_outputs = model(
+                retain_input_ids,
+                labels=retain_labels,
+                attention_mask=retain_attention_mask
+            )
+
+            retain_log_probs = F.log_softmax(retain_outputs.logits[:, :-1, :].contiguous().float(), dim=-1)
+            current_log_probs = F.log_softmax(current_outputs.logits[:, :-1, :].contiguous().float(), dim=-1)
+
+            kl_per_token = F.kl_div(
+                current_log_probs,
+                retain_log_probs,
+                reduction='none',
+                log_target=True
+            ).sum(dim=-1)
+
+            retain_mask = retain_labels[:, 1:].contiguous().ne(-100)
+            retain_loss = (kl_per_token * retain_mask).sum() / retain_mask.sum().clamp(min=1)
+            loss = npo_coeff * forget_loss + KL_coeff * retain_loss
+
+        elif loss_type == 'simnpo_KL':
+            forget_inputs, retain_inputs = inputs
+            input_ids, labels, attention_mask = forget_inputs
+
+            # =========================
+            # Forget loss: SimNPO
+            # =========================
+            outputs = model(
+                input_ids,
+                labels=labels,
+                attention_mask=attention_mask
+            )
+
+            forget_nll, response_length = get_per_sample_nll_and_length(
+                outputs.logits,
+                labels
+            )
+
+            gamma = 0.0
+
+            # SimNPO:
+            # - 2 / beta * log sigmoid(beta * NLL / |y| - gamma)
+            simnpo_logits = beta * forget_nll / response_length - gamma
+            forget_loss = -F.logsigmoid(simnpo_logits).mean() * 2 / beta
+
+            # =========================
+            # Retain loss: KL
+            # =========================
+            retain_input_ids, retain_labels, retain_attention_mask = retain_inputs
+
+            with torch.no_grad():
+                retain_outputs = oracle_model(
+                    retain_input_ids,
+                    labels=retain_labels,
+                    attention_mask=retain_attention_mask
+                )
+
+            retain_log_probs = F.log_softmax(retain_outputs.logits, dim=-1)
+
+            current_outputs = model(
+                retain_input_ids,
+                labels=retain_labels,
+                attention_mask=retain_attention_mask
+            )
+
+            current_log_probs = F.log_softmax(current_outputs.logits, dim=-1)
+
+            kl_per_token = F.kl_div(
+                current_log_probs,
+                retain_log_probs,
+                reduction='none',
+                log_target=True
+            ).sum(dim=-1)
+
+            retain_mask = retain_labels.ne(-100)
+            retain_loss = (kl_per_token * retain_mask).sum() / retain_mask.sum().clamp(min=1)
+
             loss = npo_coeff * forget_loss + KL_coeff * retain_loss
 
         return (loss, outputs) if return_outputs else loss
@@ -259,7 +383,13 @@ def unlearn_single(model_id, tokenizer, args, target, step_idx, cots_train, cots
       optimizer.zero_grad()
 
       for step, batch in enumerate(train_dataloader):
-        loss = compute_loss(model, oracle_model, batch, loss_type=args.method) 
+        loss = compute_loss(
+          model,
+          oracle_model,
+          batch,
+          loss_type=args.method,
+          KL_coeff=getattr(args, 'rt_lambda', 1.0),
+        )
 
         loss.backward()
         optimizer.step()
@@ -295,22 +425,27 @@ def unlearn_single(model_id, tokenizer, args, target, step_idx, cots_train, cots
     }
 
     if args.mmlu or args.gsm:
-      logdir = resdir.replace("chkp", "gen_cap") + f"{args.lr}/"
-      os.makedirs(logdir, exist_ok=True)
+        from lm_eval import simple_evaluate
+        logdir = resdir.replace("chkp", "gen_cap") + f"{args.lr}/"
+        os.makedirs(logdir, exist_ok=True)
 
-      print("Running evaluation from python")
-      result = run_lm_eval(resdir + name, logdir + name)
-      result_lines = result.split("\n")
-      score_line = result_lines[-7]
-      result_line_parts = score_line.split("|")
-      assert result_line_parts[1].strip() == 'mmlu', "Error when retrieving scores"
-      mmlu_acc, err = result_line_parts[-4], result_line_parts[-2]
-      # print(f"Accuracy and error: {acc} +- {err}")
-      key = 'mmlu_results' if args.mmlu else 'gsm8k_results'
-      return_dict[key] = mmlu_acc
+        print("Running MMLU via simple_evaluate ...")
+        res = simple_evaluate(
+            model="hf",
+            model_args=f"pretrained={resdir + name}",
+            tasks=["mmlu"],
+            batch_size="auto:4",
+            device="auto",
+            num_fewshot=0,
+            # limit=0.25
+        )
+        mmlu_acc = res["results"]["mmlu"]["acc,none"]
+        key = "mmlu_results" if args.mmlu else "gsm8k_results"
+        return_dict[key] = float(mmlu_acc)
+        print(f"MMLU acc = {mmlu_acc}")
 
-      print("Deleting model directory")
-      shutil.rmtree(resdir + name, ignore_errors=False, onerror=None)
+        print("Deleting model directory")
+        shutil.rmtree(resdir + name, ignore_errors=True)
 
     return return_dict
 
@@ -320,7 +455,7 @@ def load_ids(fin, stepwise=False):
       with open(fin, 'r') as infile:
           for line in infile:
               jsonline = json.loads(line)
-              id = jsonline['question']
+              id = jsonline['id']
               if stepwise:
                   id = f"{id}_{jsonline['step_idx']}"
               ids.add(id)
@@ -348,6 +483,8 @@ def make_parser():
                         help="Number of unlearning epochs")
     parser.add_argument('--lr', type=float, default=5e-5,
                         help="Learning rate for NPO")
+    parser.add_argument('--rt_lambda', type=float, default=1.0,
+                        help="Coefficient for the retain KL regularization term K_RT")
     parser.add_argument('--new_cot', action='store_true', help="Force generation of a fresh batch of CoTs.")
     parser.add_argument('--pos', action='store_true', help="Filter out function tokens in unlearning.")
     parser.add_argument('--ff2', action='store_true', help="Optimize only the ff2 layers")
@@ -419,7 +556,8 @@ def main():
     resdir = f"{root_name}/{args.dataset}/{short_model}/"
     os.makedirs(resdir, exist_ok=True)
     # No POS, no ff2, unlearn full
-    logfile_name = f"{args.method}_{args.strategy}_s={args.stepwise}_lr={str(args.lr)}_rs={args.seed}_pos={args.pos}_ff2={args.ff2}.out"
+    lambda_suffix = "" if args.rt_lambda == 1.0 else f"_lambda={args.rt_lambda:g}"
+    logfile_name = f"{args.method}_{args.strategy}_s={args.stepwise}_lr={str(args.lr)}{lambda_suffix}_rs={args.seed}_pos={args.pos}_ff2={args.ff2}.out"
     
     # Restore previous results 
     ids = load_ids(resdir + logfile_name, stepwise=args.stepwise)
@@ -448,7 +586,8 @@ def main():
               'initial_cot_probs': target['cot_probs'],
               'initial_probs': target['nocot_probs'],
               'prediction': int(np.argmax(target['nocot_probs'])),
-              'cot_prediction': int(np.argmax(target['cot_probs']))
+              'cot_prediction': int(np.argmax(target['cot_probs'])),
+              'rt_lambda': args.rt_lambda,
           }
 
           if args.stepwise:

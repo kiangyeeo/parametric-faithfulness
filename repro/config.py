@@ -27,8 +27,8 @@ RUNS = [
 # ============== 规模相关 ==============
 # 源仓库默认 250 条；我们 50 条样本，分 20 给 specificity 验证后只剩 30。
 # 这里调成与样本量匹配的数字（也可以做 smoke test 时改 5/10）。
-N_VERIFY  = 10   # specificity 验证集大小（hold-out）
-N_UNLEARN = 40   # 进入 unlearning 的样本数（50 - N_VERIFY = 40）
+N_VERIFY  = 20   # specificity 验证集大小（hold-out）
+N_UNLEARN = 230   # 进入 unlearning 的样本数
 
 # 复现 + 扩展通用配置
 EPOCHS      = 5

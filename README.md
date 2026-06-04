@@ -13,18 +13,21 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
 **Project Proposal:** [Group1_Proposal.pdf](./docs/Group1_Proposal.pdf)
 
-**Data:** [OBQA&SQA](./data)
+**Presentation Slides:** [parametric-faithfulness.pptx](./docs/parametric-faithfulness.pptx)
 
-**CoT&NoCoT results:** [4 dataset-model cot results](./final_cot)
+**Data:** [OBQA](./data/openbookqa), [SQA](./data/strategyqa),  [samples](./data/50_sample_data)
 
-**Unlearn results:** [4 dataset-model unlearn results](./final_results)
+**Reproduction Results:**  [CoT & noCoT results](./final_cot),  [unlearning results](./final_results),  [Add-mistake baseline results](./mistake_stats), [MMLU results](./mmlu_results), [50-samples results](./sample_results), [Metrics results](./repro/metrics_summary.csv)
+
+**Extension Results:** [SimNPO](./simnpo_results), [LMF](./lmf), [lambda-sweep](./lambda)
+
+**Project Report:**  [Final Report: Reproduce FUR](https://www.overleaf.com/read/bqgjwxvjqsmk#53ab34)
 
 ## 🚀 Quick Start Reproduction
 
 1. **Set up the environment and install packages.** 
 
    ```bash
-   cd repro
    conda activate pf
    pip install -r requirements.txt
    python -m spacy download en_core_web_sm
@@ -41,19 +44,24 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
    **Tips:** Apply for your access to visit Llama-3.2-3B in https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct. If  you are using Qizhi (http://qz.cfff.fudan.edu.cn/), you can ignore this part because we have download the model on the server.
 
-3. **Run the CoT&noCoT baseline before unlearning, and use GPU smoke test.**
+3. **Run the CoT & noCoT baseline before unlearning.**
 
    ```bash
-   SMOKE=1 bash repro/run_all.sh
+   PRE=1 bash repro/run_all.sh
    ```
 
-   The CoT&noCoT results will be saved in `./final_cot`. 
-   Smoke test results will be saved in `./smoke_results`.
+   The CoT & noCoT results will be saved in `./final_cot`. 
 
 4. **Run the unlearning experiment.**
 
    ```bash
    bash repro/run_all.sh
+   
+   # If you want to run them in parallel, instead, run them separately
+   python -m repro.run_repro --short_model Phi-3 --dataset openbook --lr 1e-4
+   python -m repro.run_repro --short_model Phi-3 --dataset sqa --lr 5e-5
+   python -m repro.run_repro --short_model LLaMA-3-3B --dataset openbook --lr 3e-5
+   python -m repro.run_repro --short_model LLaMA-3-3B --dataset sqa --lr 3e-5
    ```
 
    Unlearn results will be saved in `./final_results`.
@@ -61,15 +69,23 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 5. **Mistake injection and Gemini-3-flash baseline**
 
    ```bash
-   conda env config vars set GEMINI_API_KEY=your_google_api_key
-   conda deactivate && conda activate pf
+   set GEMINI_API_KEY=your_google_api_key
    jupyter notebook "Adding mistakes repro.ipynb"
    python mistakes_repro.py --short_model Phi-3 --dataset openbook
+   python mistakes_repro.py --short_model Phi-3 --dataset sqa
+   python mistakes_repro.py --short_model LLaMA-3-3B --dataset openbook
+   python mistakes_repro.py --short_model LLaMA-3-3B --dataset sqa
    ```
 
-   The notebook reads `./final_cot` and writes injected mistakes to `./mistake_results`. `mistakes_repro.py` evaluates them and writes results to `./mistake_stats`. Change `--short_model` and `--dataset` for other 2x2 combinations. Keep `HF_TOKEN` set when evaluating LLaMA-3.2-3B.
+   The notebook will write injected mistakes to `./mistake_results`. Evaluation results will be  written to `./mistake_stats`.
 
-6. Compute scores
+6. **Compute metrics.**
+
+   ```bash
+   python repro/compute_metrics.py
+   ```
+
+   The results will be save in `repro/metrics_summary.csv` and `repro/metrics_summary.json`.
 
 ## 👨‍💻 Team Members
 
@@ -89,16 +105,20 @@ This project was completed collaboratively by the following five students from *
 - [x] Environment setup 
 - [x] Run CoT prompting pipeline, record baseline accuracy
 - [x] Run no-CoT prompting pipeline as control
-- [ ] NPO-KL stepwise unlearning experiments
-- [ ] Implement Lanham mistake-injection baseline 
-- [ ] Compute FF-HARD / FF-SOFT metrics
-- [ ] Generate plots to compare and show the results
+- [x] NPO-KL stepwise unlearning experiments
+- [x] Implement Lanham mistake-injection baseline 
+- [x] Compute FF-HARD / FF-SOFT metrics, and other results.
+- [x] Generate plots to compare and show the results
+- [x] MMLU
+- [x] LLM-as-Judge
+- [ ] Confidence Interval
 
 ### Phase 2 · Extension
 
-- [ ] Design $\lambda$ sweep range & run ablation
-- [ ] Run one alternative method under the same setup
-- [ ] Compare against NPO
+- [x] Design $\lambda$ sweep range & run ablation
+- [x] Run SimNPO instead of NPO under the same setup
+- [ ] Explore more new alternative methods under the same setup
+- [ ] Analyze extension results
 - [ ] Integrate results from both extension tracks
 - [ ] Final report completed
 
@@ -106,19 +126,21 @@ This project was completed collaboratively by the following five students from *
 
 ## 🗓️ Timeline
 
-|   DDL    | Milestone                                       | Owner                               |
-| :------: | :---------------------------------------------- | :---------------------------------- |
-| April 26 | Determine project and communication             | All                                 |
-| April 30 | Proposal and code&data                          | All                                 |
-|  May 14  | Environment setup + CoT generation + unlearning | Tianle Chen / Kengyi Wang           |
-|  May 16  | Add mistake baseline                            | Junyan Liu                          |
-|  May 17  | Metrics + visualization                         | Wanyi Zhou                          |
-|  May 21  | Midterm presentation                            | Jialong Chen                        |
-|  May 24  | Reproduction summary                            | All                                 |
-| June 07  | Extension: $\lambda$ ablation                   | Jialong Chen                        |
-| June 07  | NPO replacement experiments                     | Junyan Liu, Tianle Chen, Wanyi Zhou |
-| June 14  | Final report                                    | Kengyi Wang                         |
-| June 25  | Modify and submit                               | All                                 |
+|   DDL    | Milestone                                        | Owner                     |
+| :------: | :----------------------------------------------- | :------------------------ |
+| April 26 | Determine project and communication              | All                       |
+| April 30 | Proposal and code&data                           | All                       |
+|  May 14  | Environment setup + CoT generation + unlearning  | Tianle Chen / Kengyi Wang |
+|  May 16  | Add mistake baseline                             | Junyan Liu                |
+|  May 17  | Metrics + visualization                          | Wanyi Zhou                |
+|  May 21  | Midterm presentation                             | Jialong Chen              |
+|  May 24  | Reproduction supplement (MMLU, CI, llm-as-judge) | Kengyi Wang               |
+| June 07  | $\lambda$ sweeps and analysis                    | Jialong Chen              |
+| June 07  | SimNPO experiments and analysis                  | Tianle Chen               |
+| June 07  | LMF experiments and analysis                     | Junyan Liu                |
+| June 07  | Explore new methods to replace                   | Wanyi Zhou                |
+| June 14  | Final report                                     | Kengyi Wang               |
+| June 25  | Modify and submit                                | All                       |
 
 ## 🙏 Acknowledgments
 
