@@ -30,7 +30,7 @@ from typing import Any, Iterable
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_RESULTS_DIR = REPO_ROOT / "lmf" / "ablation"
+DEFAULT_RESULTS_DIR = REPO_ROOT / "lmf" / "final_results"
 DEFAULT_OUTPUT_CSV = REPO_ROOT / "lmf" / "metrics_summary.csv"
 DEFAULT_OUTPUT_JSON = REPO_ROOT / "lmf" / "metrics_summary.json"
 KNOWN_METHOD_PREFIXES = ["npo_grad_diff", "simnpo_KL", "npo_KL", "lmf_KL", "npo"]
