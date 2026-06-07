@@ -130,8 +130,8 @@ def train_one_target(model_id, tokenizer, args, target, step_idx, cots_train):
     import unlearn
     from data import FRCollator, cot_to_otfd
 
-    model = CLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, trust_remote_code=False, device_map="auto")
-    oracle = CLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, trust_remote_code=False, device_map="auto")
+    model = CLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, trust_remote_code=True, device_map="auto")
+    oracle = CLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, trust_remote_code=True, device_map="auto")
     collator = FRCollator(tokenizer, device=model.device)
     dataset = cot_to_otfd(
         target, cots_train, tokenizer, strategy=cfg.STRATEGY,
@@ -192,7 +192,7 @@ def run(args):
 
     set_random_seed(args.seed)
     model_id = cfg.MODELS[args.short_model]
-    tokenizer = TOK.from_pretrained(model_id)
+    tokenizer = TOK.from_pretrained(model_id, trust_remote_code=True)
     tokenizer.pad_token = tokenizer.unk_token if "Phi" in model_id else tokenizer.eos_token
     cot_data = load_or_generate_dataset_cots(
         model_id=model_id, tokenizer=tokenizer, dataset_id=args.dataset,
