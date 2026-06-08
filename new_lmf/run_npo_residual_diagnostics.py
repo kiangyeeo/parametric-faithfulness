@@ -27,54 +27,6 @@ from repro import config as cfg
 
 METHOD = "npo_KL"
 DIAG_DIR = "new_lmf/npo_residual_diagnostics"
-PHI3_CACHE_ROOT = Path.home() / ".cache" / "huggingface" / "hub" / "models--microsoft--Phi-3-mini-4k-instruct"
-
-
-def resolve_hf_cache_path(path):
-    path = Path(os.path.expandvars(str(path))).expanduser()
-    if (path / "config.json").exists():
-        return path
-
-    snapshots = path / "snapshots"
-    refs_main = path / "refs" / "main"
-    if refs_main.exists():
-        candidate = snapshots / refs_main.read_text(encoding="utf-8").strip()
-        if (candidate / "config.json").exists():
-            return candidate
-
-    if snapshots.exists():
-        candidates = [
-            p for p in snapshots.iterdir()
-            if p.is_dir() and (p / "config.json").exists()
-        ]
-        if candidates:
-            return max(candidates, key=lambda p: p.stat().st_mtime)
-
-    raise FileNotFoundError(f"Could not find a Hugging Face snapshot with config.json under {path}")
-
-
-def resolve_model_load_path(args, model_id):
-    if args.model_path:
-        return str(resolve_hf_cache_path(args.model_path))
-    if args.short_model == "Phi-3" and PHI3_CACHE_ROOT.exists():
-        return str(resolve_hf_cache_path(PHI3_CACHE_ROOT))
-    return model_id
-
-
-def set_tokenizer_identity(tokenizer, model_id):
-    """Keep POS filtering keyed by the original HF model id.
-
-    ``segment.align_cot_to_pos`` looks up whitespace rules by
-    ``tokenizer.name_or_path``. When the tokenizer is loaded from a local
-    snapshot, that field becomes the local path, so restore the canonical id.
-    """
-
-    try:
-        tokenizer.name_or_path = model_id
-    except AttributeError:
-        pass
-    tokenizer._name_or_path = model_id
-    return tokenizer
 
 
 def diag_path(args):
@@ -222,14 +174,12 @@ def train_one_target(model_id, tokenizer, args, target, step_idx, cots_train):
         model_id,
         torch_dtype=torch.bfloat16,
         trust_remote_code=args.trust_remote_code,
-        local_files_only=args.local_files_only,
         device_map="auto",
     )
     oracle = CLM.from_pretrained(
         model_id,
         torch_dtype=torch.bfloat16,
         trust_remote_code=args.trust_remote_code,
-        local_files_only=args.local_files_only,
         device_map="auto",
     )
     collator = FRCollator(tokenizer, device=model.device)
@@ -315,14 +265,7 @@ def run(args):
 
     set_random_seed(args.seed)
     model_id = cfg.MODELS[args.short_model]
-    model_load_path = resolve_model_load_path(args, model_id)
-    print(f"model load path: {model_load_path}")
-    tokenizer = TOK.from_pretrained(
-        model_load_path,
-        trust_remote_code=args.trust_remote_code,
-        local_files_only=args.local_files_only,
-    )
-    tokenizer = set_tokenizer_identity(tokenizer, model_id)
+    tokenizer = TOK.from_pretrained(model_id, trust_remote_code=args.trust_remote_code)
     tokenizer.pad_token = tokenizer.unk_token if "Phi" in model_id else tokenizer.eos_token
 
     cot_data = load_or_generate_dataset_cots(
@@ -350,7 +293,7 @@ def run(args):
             key = f"{target['id']}_{step_idx}"
             if key in done:
                 continue
-            diagnostics = train_one_target(model_load_path, tokenizer, args, target, step_idx, cots_train)
+            diagnostics = train_one_target(model_id, tokenizer, args, target, step_idx, cots_train)
             if diagnostics is None:
                 continue
             append_jsonl(out, {
@@ -365,7 +308,6 @@ def run(args):
                 "rt_lambda": args.rt_lambda,
                 "grad_threshold": args.grad_threshold,
                 "max_prob_threshold": args.max_prob_threshold,
-                "model_load_path": str(model_load_path),
                 "pos": not args.no_pos,
                 "ff2": not args.no_ff2,
                 "cot_step": target["segmented_cot"][step_idx],
@@ -437,15 +379,13 @@ def parse_args():
     parser.add_argument("--lr", type=float)
     parser.add_argument("--beta", type=float, default=0.1)
     parser.add_argument("--rt_lambda", type=float, default=1.0)
-    parser.add_argument("--n_unlearn", type=int, default=30)
+    parser.add_argument("--n_unlearn", type=int, default=5)
     parser.add_argument("--n_verify", type=int, default=cfg.N_VERIFY)
     parser.add_argument("--epochs", type=int, default=cfg.EPOCHS)
     parser.add_argument("--seed", type=int, default=cfg.SEED)
     parser.add_argument("--grad_threshold", type=float, default=0.05)
     parser.add_argument("--max_prob_threshold", type=float, default=0.5)
     parser.add_argument("--diagnostics_dir", default=DIAG_DIR)
-    parser.add_argument("--model_path", default=None)
-    parser.add_argument("--local_files_only", action="store_true")
     parser.add_argument("--new_cot", action="store_true")
     parser.add_argument("--no_pos", action="store_true")
     parser.add_argument("--no_ff2", action="store_true")
@@ -468,11 +408,8 @@ def main():
 
     if args.dry_run:
         path = diag_path(args)
-        model_id = cfg.MODELS[args.short_model]
-        model_load_path = resolve_model_load_path(args, model_id)
         print(f"diagnostics path: {path}")
         print(f"summary path: {path.with_suffix('.summary.csv')}")
-        print(f"model load path: {model_load_path}")
         print(
             f"default size: n_unlearn={args.n_unlearn}, n_verify={args.n_verify}, "
             f"epochs={args.epochs}, beta={args.beta}"
