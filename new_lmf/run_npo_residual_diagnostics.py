@@ -19,8 +19,14 @@ def diag_path(a):
 def load_done(path):
     if not path.exists():
         return set()
+    done = set()
     with path.open(encoding="utf-8") as f:
-        return {f"{r['id']}_{r['step_idx']}" for r in map(json.loads, f) if r}
+        for line in f:
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            done.add(f"{row['id']}_{row['step_idx']}")
+    return done
 
 
 def append_jsonl(path, row):
@@ -83,10 +89,18 @@ def compute_diagnostics(model, oracle, batch, beta, grad_thr, prob_thr):
             rids, rlabels, rattn = retain
             rref = oracle(rids, labels=rlabels, attention_mask=rattn)
             rcur = model(rids, labels=rlabels, attention_mask=rattn)
-            rref_lp = F.log_softmax(rref.logits[:, :-1, :].contiguous().float(), -1)
-            rcur_lp = F.log_softmax(rcur.logits[:, :-1, :].contiguous().float(), -1)
+            rref_full_lp = F.log_softmax(rref.logits.contiguous().float(), -1)
+            rcur_full_lp = F.log_softmax(rcur.logits.contiguous().float(), -1)
+            retain_kl_train_style = F.kl_div(
+                rcur_full_lp.view(-1, rcur_full_lp.shape[-1]),
+                rref_full_lp.view(-1, rref_full_lp.shape[-1]),
+                reduction="batchmean",
+                log_target=True,
+            )
+            rref_lp = rref_full_lp[:, :-1, :]
+            rcur_lp = rcur_full_lp[:, :-1, :]
             rmask = rlabels[:, 1:].contiguous().ne(-100)
-            retain_kl = F.kl_div(rcur_lp, rref_lp, reduction="none", log_target=True).sum(-1)
+            retain_kl_masked = F.kl_div(rcur_lp, rref_lp, reduction="none", log_target=True).sum(-1)
 
             top1, top20, pos_frac = positive_delta_stats(token_delta, mask)
             grad_s, max_prob_m = scalar(grad), scalar(masked_mean(max_prob, mask))
@@ -103,7 +117,8 @@ def compute_diagnostics(model, oracle, batch, beta, grad_thr, prob_thr):
                     "token_delta_mean": scalar(masked_mean(token_delta, mask)),
                     "positive_token_delta_fraction": pos_frac, "positive_delta_top1_share": top1,
                     "positive_delta_top20pct_share": top20, "retain_valid_tokens": int(rmask.sum().detach().cpu().item()),
-                    "retain_kl": scalar(masked_mean(retain_kl, rmask))}
+                    "retain_kl": scalar(retain_kl_train_style), "retain_kl_train_style": scalar(retain_kl_train_style),
+                    "retain_kl_masked": scalar(masked_mean(retain_kl_masked, rmask))}
     finally:
         model.train(was_training)
 
@@ -111,7 +126,7 @@ def compute_diagnostics(model, oracle, batch, beta, grad_thr, prob_thr):
 def train_one_target(model_id, tokenizer, a, target, step_idx, cots_train):
     import torch, unlearn; from data import FRCollator, cot_to_otfd
     from torch.utils.data import DataLoader; from transformers import AutoModelForCausalLM as CLM
-    kw = dict(torch_dtype=torch.bfloat16, trust_remote_code=a.trust_remote_code, device_map="auto")
+    kw = dict(torch_dtype=torch.bfloat16, device_map="auto")
     model, oracle = CLM.from_pretrained(model_id, **kw), CLM.from_pretrained(model_id, **kw)
     collator = FRCollator(tokenizer, device=model.device)
     dataset = cot_to_otfd(target, cots_train, tokenizer, strategy=cfg.STRATEGY, stepwise=cfg.STEPWISE, step_idx=step_idx, pos=not a.no_pos)
@@ -147,7 +162,7 @@ def run(a):
     login(os.environ["HF_TOKEN"]) if os.environ.get("HF_TOKEN") else print("[warn] HF_TOKEN is not set; gated models must be cached locally.")
     set_random_seed(a.seed)
     model_id = cfg.MODELS[a.short_model]
-    tok = TOK.from_pretrained(model_id, trust_remote_code=a.trust_remote_code)
+    tok = TOK.from_pretrained(model_id)
     tok.pad_token = tok.unk_token if "Phi" in model_id else tok.eos_token
     cots = load_or_generate_dataset_cots(model_id, tok, a.dataset, a.seed, cfg.TEMPERATURE,
                                         force_generate=a.new_cot, sentencize=(cfg.STRATEGY == "sentencize"), atomic=False)
@@ -216,7 +231,7 @@ def parse_args():
         ("summarize", {}), ("summary_csv", {}),
     ]:
         p.add_argument(f"--{name}", **kwargs)
-    for flag in ("new_cot", "no_pos", "no_ff2", "trust_remote_code", "dry_run"): p.add_argument(f"--{flag}", action="store_true")
+    for flag in ("new_cot", "no_pos", "no_ff2", "dry_run"): p.add_argument(f"--{flag}", action="store_true")
     return p.parse_args()
 
 
