@@ -150,7 +150,7 @@ def run(a):
     tok = TOK.from_pretrained(model_id, trust_remote_code=a.trust_remote_code)
     tok.pad_token = tok.unk_token if "Phi" in model_id else tok.eos_token
     cots = load_or_generate_dataset_cots(model_id, tok, a.dataset, a.seed, cfg.TEMPERATURE,
-                                         force_generate=a.new_cot, sentencize=(cfg.STRATEGY == "sentencize"), atomic=False)
+                                        force_generate=a.new_cot, sentencize=(cfg.STRATEGY == "sentencize"), atomic=False)
     random.shuffle(cots)
     cots_train, out = cots[:-a.n_verify], diag_path(a)
     done = load_done(out)
@@ -165,10 +165,10 @@ def run(a):
             if diagnostics is None:
                 continue
             append_jsonl(out, {"id": target["id"], "question": target["question"], "step_idx": step_idx,
-                               "dataset": a.dataset, "short_model": a.short_model, "method": METHOD, "lr": a.lr,
-                               "beta": a.beta, "rt_lambda": a.rt_lambda, "grad_threshold": a.grad_threshold,
-                               "max_prob_threshold": a.max_prob_threshold, "pos": not a.no_pos, "ff2": not a.no_ff2,
-                               "cot_step": target["segmented_cot"][step_idx], "diagnostics_results": diagnostics})
+                                "dataset": a.dataset, "short_model": a.short_model, "method": METHOD, "lr": a.lr,
+                                "beta": a.beta, "rt_lambda": a.rt_lambda, "grad_threshold": a.grad_threshold,
+                                "max_prob_threshold": a.max_prob_threshold, "pos": not a.no_pos, "ff2": not a.no_ff2,
+                                "cot_step": target["segmented_cot"][step_idx], "diagnostics_results": diagnostics})
             done.add(key)
     summarize(out)
 
