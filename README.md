@@ -21,7 +21,7 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
 **Extension Results:** [SimNPO](./simnpo_results), [LMF](./lmf), [lambda-sweep](./lambda)
 
-**Project Report:**  [Final Report: Reproduce FUR](https://www.overleaf.com/read/bqgjwxvjqsmk#53ab34)
+**Project Report:**  [Final Report: Reproduce FUR](./docs/final report.pdf)
 
 ## 🚀 Quick Start Reproduction
 
@@ -115,10 +115,10 @@ This project was completed collaboratively by the following five students from *
 
 - [x] Design $\lambda$ sweep range & run ablation
 - [x] Run SimNPO instead of NPO under the same setup
-- [ ] Explore more new alternative methods under the same setup
-- [ ] Analyze extension results
-- [ ] Integrate results from both extension tracks
-- [ ] Final report completed
+- [x] Explore more new alternative methods under the same setup
+- [x] Analyze extension results
+- [x] Integrate results from both extension tracks
+- [x] Final report completed
 
 ---
 
@@ -132,7 +132,7 @@ This project was completed collaboratively by the following five students from *
 |  May 16  | Add mistake baseline                            | Junyan Liu                |
 |  May 17  | Metrics + visualization                         | Wanyi Zhou                |
 |  May 21  | Midterm presentation                            | Jialong Chen              |
-|  May 24  | Reproduction supplement (MMLU, CI)              | Kengyi Wang               |
+|  May 24  | Reproduction supplement                         | Kengyi Wang               |
 | June 07  | $\lambda$ sweeps and analysis                   | Jialong Chen              |
 | June 07  | SimNPO experiments and analysis                 | Tianle Chen               |
 | June 07  | LMF experiments and analysis                    | Junyan Liu                |
