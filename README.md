@@ -21,7 +21,7 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
 **Extension Results:** [SimNPO](./simnpo_results), [LMF](./lmf), [lambda-sweep](./lambda)
 
-**Project Report:**  [Final Report: Reproduce FUR](./docs/final report.pdf)
+**Project Report:**  [Final Report: Reproduce FUR](./docs/final_report.pdf)
 
 ## 🚀 Quick Start Reproduction
 
