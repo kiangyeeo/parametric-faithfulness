@@ -1,0 +1,109 @@
+{
+  "openbook/Llama-3.2-3B-Instruct": {
+    "dataset": "openbook",
+    "model": "Llama-3.2-3B-Instruct",
+    "n_instances": 250,
+    "total_tokens": 29312,
+    "group_counts": {
+      "entity": 7667,
+      "attribute": 2416,
+      "other": 5142,
+      "function": 10792,
+      "action": 2535,
+      "modifier": 760
+    },
+    "group_ratios": {
+      "entity": 0.2616,
+      "attribute": 0.0824,
+      "other": 0.1754,
+      "function": 0.3682,
+      "action": 0.0865,
+      "modifier": 0.0259
+    }
+  },
+  "openbook/Phi-3-mini-4k-instruct": {
+    "dataset": "openbook",
+    "model": "Phi-3-mini-4k-instruct",
+    "n_instances": 250,
+    "total_tokens": 19540,
+    "group_counts": {
+      "other": 4290,
+      "function": 6919,
+      "entity": 4961,
+      "action": 1789,
+      "modifier": 351,
+      "attribute": 1230
+    },
+    "group_ratios": {
+      "other": 0.2195,
+      "function": 0.3541,
+      "entity": 0.2539,
+      "action": 0.0916,
+      "modifier": 0.018,
+      "attribute": 0.0629
+    }
+  },
+  "sqa/Llama-3.2-3B-Instruct": {
+    "dataset": "sqa",
+    "model": "Llama-3.2-3B-Instruct",
+    "n_instances": 250,
+    "total_tokens": 32468,
+    "group_counts": {
+      "other": 6256,
+      "function": 11329,
+      "entity": 8878,
+      "attribute": 2794,
+      "modifier": 780,
+      "action": 2431
+    },
+    "group_ratios": {
+      "other": 0.1927,
+      "function": 0.3489,
+      "entity": 0.2734,
+      "attribute": 0.0861,
+      "modifier": 0.024,
+      "action": 0.0749
+    }
+  },
+  "sqa/Phi-3-mini-4k-instruct": {
+    "dataset": "sqa",
+    "model": "Phi-3-mini-4k-instruct",
+    "n_instances": 250,
+    "total_tokens": 20157,
+    "group_counts": {
+      "other": 4276,
+      "function": 6801,
+      "entity": 5534,
+      "action": 1419,
+      "attribute": 1663,
+      "modifier": 464
+    },
+    "group_ratios": {
+      "other": 0.2121,
+      "function": 0.3374,
+      "entity": 0.2745,
+      "action": 0.0704,
+      "attribute": 0.0825,
+      "modifier": 0.023
+    }
+  },
+  "global": {
+    "total_tokens": 101477,
+    "group_counts": {
+      "entity": 27040,
+      "attribute": 8103,
+      "other": 19964,
+      "function": 35841,
+      "action": 8174,
+      "modifier": 2355
+    },
+    "group_ratios": {
+      "entity": 0.2665,
+      "attribute": 0.0799,
+      "other": 0.1967,
+      "function": 0.3532,
+      "action": 0.0806,
+      "modifier": 0.0232
+    }
+  }
+}
