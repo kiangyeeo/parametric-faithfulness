@@ -17,7 +17,7 @@ This project aims to conduct an in-depth investigation into parametric faithfuln
 
 **Data:** [OBQA](./data/openbookqa), [SQA](./data/strategyqa),  [samples](./data/50_sample_data)
 
-**Reproduction Results:**  [CoT & noCoT results](./final_cot),  [unlearning results](./final_results),  [Add-mistake baseline results](./add_mistakes_result), [MMLU results](./mmlu_results)
+**Reproduction Results:**  [CoT & noCoT results](./final_cot),  [unlearning results](./final_results),  [Add-mistake baseline results](./add_mistakes), [MMLU results](./mmlu_results)
 
 **Extension Results:** [SimNPO](./final_results), [LMF](./final_results), [lambda-sweep](./lambda), [word-type-sweep](./final_results/openbook/LLaMA-3-3B")
 
