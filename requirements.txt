@@ -1,35 +1,24 @@
-# 源仓库没有 requirements.txt，这里根据 import 反推出来。
-# 复现完成后可以 pip freeze > requirements.lock.txt 锁定版本。
-
-# 核心训练 + 推理
 torch>=2.1
 transformers==4.40.2
 accelerate>=0.30
 huggingface-hub>=0.23,<1.0
-datasets>=2.18           # OBQA 第一次本地化前可能还要联网下别的，留着
-
-# NLP 工具
+datasets>=2.18        
 spacy>=3.7
-# 安装后还要：python -m spacy download en_core_web_sm
-nltk>=3.8
-# 安装后还要：python -c "import nltk; nltk.download('punkt')"
 
-# 杂项
+nltk>=3.8
+
+
 numpy>=1.24
 tqdm>=4.66
-matplotlib>=3.8         # 出图用
-seaborn>=0.13           # 论文热图风格
-pandas>=2.1             # annotation_data csv 处理
+matplotlib>=3.8       
+seaborn>=0.13          
+pandas>=2.1            
 
-# MMLU / GSM8K 评测（如果不跑下游评测可以删）
-# pip install lm-eval[hf]
 lm-eval>=0.4
 
-# notebook 跑分析
 jupyter
 ipykernel
-google-genai>=1.0       # Gemini API for Add-mistake baseline
+google-genai>=1.0     
 
-# PPT generation
 python-pptx>=1.0.2
 Pillow>=10
