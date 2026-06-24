@@ -1,5 +1,4 @@
 import os, json, copy, random
-from pathlib import Path
 
 import random
 import spacy
@@ -89,25 +88,6 @@ def qcot_encoder(tokenizer, question, cot, pos_filter=False, nlp=None):
 
     L = (labels != IGNORE_IDX).sum()
     return encoded_input, labels, attention_mask, L
-
-#On-the-Fly
-class OTFDataset(Dataset):
-    def __init__(self, forget, retain):
-        self.forget = forget # Either a single sentence or a set of atomic statements
-        self.retain = retain
-
-    def __len__(self):
-        return len(self.forget)
-
-    def __getitem__(self, idx):
-        # 1. Take a forget sample at the given index
-        forget_sample = self.forget[idx]
-
-        # 2. Take a (random?) retain sample 
-        retain_sample = self.retain[idx]
-
-        # Tokenization, padding etc done in collator
-        return [forget_sample, retain_sample]
 
 class SegmentOTFDataset(Dataset):
     def __init__(self, forget, retain, tokenizer, stepwise=False, pos_filter=False, step_idx=0):
@@ -232,36 +212,12 @@ class FRCollator:
 
         return (E_fib, L_fib, A_fib), (E_rib, L_rib, A_rib)
 
-# Forget-Retain
-class DualCollator:
-    def __init__(self, tokenizer):
-        self.tokenizer = tokenizer
-
-    def __call__(self, samples):
-        forgets, retain = zip(*samples)
-        # Tokenize, check max length, stack together
-        forget_batch = self.tokenizer.batch_encode_plus(forgets, pad_to_max_length=True)
-        retain_batch = self.tokenizer.batch_encode_plus(retain, pad_to_max_length=True)
-        return forget_batch, retain_batch
-
-COT_ROOT = Path('cots/full')
-SEGMENT_COT_ROOT = Path('cots/sentencized')
-
 def load_jsonl(floc):
     data = []
     with open(floc, 'r') as infile:
         for line in infile:
             data.append(json.loads(line))
     return data
-
-# sports_Phi-3-mini-4k-instruct_cots.json
-def load_cotfiles(model='Phi-3-mini-4k-instruct', dataset='sports', root=COT_ROOT):
-    short_model = model_name_dict[model]
-    cot_data = []
-    with open(root / dataset / f"{short_model}_cots.jsonl") as infile:
-        for line in infile:
-            cot_data.append(json.loads(line))
-    return cot_data
 
 def make_targets(cot_dict, segment=lambda d: [(d['cot'], None)]):
     DELIM = '\n\n'

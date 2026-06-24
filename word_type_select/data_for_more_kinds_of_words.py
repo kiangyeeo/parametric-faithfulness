@@ -11,9 +11,12 @@ from torch.nn.utils.rnn import pad_sequence
 from tqdm import tqdm
 
 from evaluate import generate_dataset_cots
-from segment import align_cot_to_pos, get_word_type_group, validate_word_type_group, get_available_word_type_groups, \
-    classify_vocab_types, build_word_type_visualization, build_word_type_visualization_plain, \
-    classify_and_filter_cot_step, generate_validation_report
+from segment_for_more_kinds_of_words import (
+    align_cot_to_pos,
+    validate_word_type_group,
+    get_available_word_type_groups,
+    classify_and_filter_cot_step,
+)
 
 
 IGNORE_IDX = -100
@@ -28,7 +31,7 @@ model_name_dict = {
     'llama-2-hf': 'LLaMA-2',
     'Llama-2-7b-chat-hf': 'LLaMA-2',
     'Mistral-7B-Instruct-v0.1': 'Mistral-1',
-    # 本地路径支持
+    # local snapshot path
     '0cb88a4f764b7a12671c53f0838cd831a0843b95': 'LLaMA-3-3B',
 }
 
@@ -67,29 +70,17 @@ def left_pad_sequence(vector_list, padding_value):
 
 
 def qcot_encoder(tokenizer, question, cot, pos_filter=False, nlp=None, word_type_group=None):
-    """编码CoT推理步骤，支持按词汇类型分组过滤遗忘目标。
-    
-    增强版：在原有 pos_filter 基础上增加了 word_type_group 参数，
-    允许按特定词汇类型（如 'entity', 'action', 'function' 等）
-    选择性构建遗忘集。
-    
-    Args:
-        tokenizer: HuggingFace tokenizer
-        question: 问题文本
-        cot: CoT推理步骤文本
-        pos_filter: 是否启用词性过滤（向后兼容）
-        nlp: spaCy 模型（pos_filter 为 True 时必需）
-        word_type_group: 词汇类型分组名称，如 'entity', 'action', 'function' 等。
-                       为 None 时使用原始 pos_filter 逻辑（向后兼容）。
-        
-    Returns:
-        tuple: (encoded_input, labels, attention_mask, num_targets)
+    """Encode a (question, CoT-step) pair into forget targets.
+
+    Extends the upstream encoder with ``word_type_group``: when set (and not
+    'all_content'), only tokens of that vocabulary group are kept as targets.
+    With ``word_type_group=None`` the behavior matches upstream pos_filter.
+    Returns (encoded_input, labels, attention_mask, num_targets).
     """
     question += "\n\n"
     question_tokens = tokenizer.encode(question, add_special_tokens=False, return_tensors='pt')[0]
 
     if pos_filter:
-        # 如果指定了 word_type_group，使用增强版分类过滤
         if word_type_group is not None and word_type_group != 'all_content':
             cot_tokens, word_to_span = classify_and_filter_cot_step(
                 cot, tokenizer, tokenizer.name_or_path, nlp, word_type_group=word_type_group
@@ -105,13 +96,12 @@ def qcot_encoder(tokenizer, question, cot, pos_filter=False, nlp=None, word_type
     attention_mask = torch.ones_like(encoded_input)
 
     QL = len(question_tokens)
-    for i in range(QL): 
+    for i in range(QL):
         labels[i] = IGNORE_IDX
-    
+
     if pos_filter:
-        # 当 word_to_span 为空（该步骤无目标类型词汇）时，
-        # labels 中 CoT 部分也全部设为 IGNORE_IDX，
-        # 使得 num_targets()=0，自然触发 unlearn_single 中的跳过逻辑
+        # No words of the requested group in this step: mask the whole CoT so
+        # num_targets()==0, which triggers the skip path in unlearn_single.
         if not word_to_span:
             labels[QL:] = IGNORE_IDX
         else:
@@ -151,7 +141,7 @@ class SegmentOTFDataset(Dataset):
         self.retain_idx = 0
         self.min_targets = 2
         self.pos_filter = pos_filter
-        self.word_type_group = word_type_group  # 词汇类型分组
+        self.word_type_group = word_type_group
         self.NLP = None
         if pos_filter:
             self.NLP = spacy.load("en_core_web_sm", disable=['ner'])
@@ -159,12 +149,11 @@ class SegmentOTFDataset(Dataset):
         self._forget_sample = None
         self._retain_sample = None
 
-        # 若指定了词汇类型分组，进行验证
         if self.word_type_group is not None and not validate_word_type_group(self.word_type_group):
             valid_groups = get_available_word_type_groups()
             raise ValueError(
-                f"SegmentOTFDataset: 无效的词汇类型分组 '{self.word_type_group}'。"
-                f"有效分组: {valid_groups}"
+                f"SegmentOTFDataset: invalid word_type_group '{self.word_type_group}'. "
+                f"Valid groups: {valid_groups}"
             )
 
     def __len__(self):
@@ -331,20 +320,14 @@ def make_targets(cot_dict, segment=lambda d: [(d['cot'], None)]):
 
 # strategies = full, newline, sentencize, atomic statements
 def cot_to_otfd(target, all, tokenizer, n=4, strategy='full', stepwise=True, step_idx=0, pos=False, word_type_group=None):
-    """构建遗忘-保留数据集，支持按词汇类型分组过滤。
-    
-    Args:
-        word_type_group: 词汇类型分组名称，如 'entity', 'action', 'function' 等。
-                       为 None 时使用原始行为（向后兼容）。
-    """
-    # 验证词汇类型分组
+    """Build the forget/retain dataset; ``word_type_group=None`` keeps upstream behavior."""
     if word_type_group is not None and not validate_word_type_group(word_type_group):
         valid_groups = get_available_word_type_groups()
         raise ValueError(
-            f"cot_to_otfd: 无效的词汇类型分组 '{word_type_group}'。"
-            f"有效分组: {valid_groups}"
+            f"cot_to_otfd: invalid word_type_group '{word_type_group}'. "
+            f"Valid groups: {valid_groups}"
         )
-    
+
     # Target cot, other cots, generate a dataset
     if strategy == 'full':
         all = copy.deepcopy(all)

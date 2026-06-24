@@ -1,61 +1,47 @@
 #!/bin/bash
 # ============================================================
-# Modifier + LLaMA-3.2-3B Unlearning 训练脚本
+# Word-type stepwise unlearning (LLaMA-3.2-3B)
 # ============================================================
-# 功能：对 LLaMA-3.2-3B-Instruct 模型进行 modifier 类型词汇的
-#       分步遗忘训练，评估 CoT 推理忠实性
+# Unlearns one vocabulary-type group (e.g. modifier) per CoT step and
+# evaluates CoT faithfulness. Run from the repo root.
 # ============================================================
 
 set -e
+cd "$(dirname "$0")/.."   # cd to repo root
 
-# ---------- 环境配置 ----------
+# ---------- environment ----------
 export TOKENIZERS_PARALLELISM=false
-export HF_HOME="/inspire/hdd/project/fdu-aidake-cfff/public/.huggingface"
-export TRANSFORMERS_CACHE="${HF_HOME}/.transformers"
+# export HF_HOME="/path/to/huggingface"           # optional cache location
+# export HF_TOKEN="your_token_here"               # required for gated models
 
-# 如需访问 gated model，设置 HF_TOKEN
-# export HF_TOKEN="your_token_here"
+# ---------- parameters ----------
+MODEL_NAME="meta-llama/Llama-3.2-3B-Instruct"  # or a local snapshot path
+DATASET="sqa"                 # openbook | sqa
+METHOD="npo_KL"               # unlearning loss
+STRATEGY="sentencize"         # CoT segmentation
+LR=3e-05                      # const.py best lr for LLaMA-3-3B
+EPOCHS=5
+SEED=1001
+RT_LAMBDA=1.0                 # retain KL coefficient
+WORD_TYPE_GROUP="modifier"    # entity | attribute | action | function | modifier | all_content | random
 
-# 安装 tiktoken（LLaMA 3.x 分词器依赖）
-pip install tiktoken --break-system-packages -q 2>/dev/null || pip install tiktoken -q 2>/dev/null || true
-
-# ---------- 训练参数 ----------
-MODEL_NAME="/inspire/hdd/project/fdu-aidake-cfff/public/.huggingface/.hub/models--meta-llama--Llama-3.2-3B-Instruct/snapshots/0cb88a4f764b7a12671c53f0838cd831a0843b95"
-DATASET="sqa"           # 数据集: openbook / sqa
-METHOD="npo_KL"              # 遗忘算法: NPO + KL 正则化
-STRATEGY="sentencize"        # 分段策略: sentencize
-STEPWISE=True                # 逐步遗忘每个 CoT 步骤
-LR=3e-05                     # 学习率 (const.py 中 LLaMA-3-3B 推荐值)
-EPOCHS=5                     # 遗忘训练轮数
-SEED=1001                    # 随机种子
-POS=True                     # 启用词性过滤
-FF2=True                     # 仅优化 FF2 层 (mlp.down_proj)
-RT_LAMBDA=1.0                # KL 正则化系数
-WORD_TYPE_GROUP="modifier"            # 目标词汇类型: modifier
-
-# ---------- 工作目录 ----------
-WORK_DIR="/inspire/hdd/project/fdu-aidake-cfff/public/wanyizhou/measuring cot/parametric-faithfulness"
-SCRIPT="${WORK_DIR}/unlearn_word_types.py"
-
-cd "${WORK_DIR}"
+SCRIPT="word_type_select/unlearn_for_more_kinds_of_words.py"
 
 echo "============================================"
-echo "  Random Unlearning - LLaMA-3.2-3B"
+echo "  Word-type unlearning - LLaMA-3.2-3B"
 echo "============================================"
-echo "  Model:          ${MODEL_NAME}"
-echo "  Dataset:        ${DATASET}"
-echo "  Word Type:      ${WORD_TYPE_GROUP}"
-echo "  Method:         ${METHOD}"
-echo "  Strategy:       ${STRATEGY}"
-echo "  Stepwise:       ${STEPWISE}"
-echo "  LR:             ${LR}"
-echo "  Epochs:         ${EPOCHS}"
-echo "  FF2 only:       ${FF2}"
-echo "  RT Lambda:      ${RT_LAMBDA}"
-echo "  Seed:           ${SEED}"
+echo "  Model:       ${MODEL_NAME}"
+echo "  Dataset:     ${DATASET}"
+echo "  Word type:   ${WORD_TYPE_GROUP}"
+echo "  Method:      ${METHOD}"
+echo "  Strategy:    ${STRATEGY}"
+echo "  LR:          ${LR}"
+echo "  Epochs:      ${EPOCHS}"
+echo "  RT lambda:   ${RT_LAMBDA}"
+echo "  Seed:        ${SEED}"
 echo "============================================"
 
-# ---------- 启动训练 ----------
+# --stepwise / --pos / --ff2 are store_true flags (enabled by being present).
 python "${SCRIPT}" \
     --model_name "${MODEL_NAME}" \
     --dataset "${DATASET}" \

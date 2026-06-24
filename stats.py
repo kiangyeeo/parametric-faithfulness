@@ -1,17 +1,6 @@
 import numpy as np
 from util import renorm
 
-def efficacy_per_instance(epoch_results):
-    return [r['cot_step_prob'][0] for _, r in epoch_results.items()]
-
-def specificity_per_instance(epoch_results):
-    specificity = [100.]
-    initial = a(epoch_results['0']['specificity_preds'])
-    for i in range(1, len(epoch_results)):
-        preds = a(epoch_results[str(i)]['specificity_preds'])
-        specificity.append((initial == preds).sum() / len(preds) * 100.)
-    return specificity
-
 def average_efficacy(results, step=False):
     # This is just average efficacy for each iter across the entire dataset.
     eff_through_iters = {}
@@ -36,11 +25,6 @@ def average_efficacy(results, step=False):
     tot = np.concatenate(list(eff_through_iters.values()))
 
     return np.mean(tot), list(eff_through_iters.values())[0]
-
-def efficacy_reduction_per_instance_scaled(epoch_results):
-    step_probabilities = [np.exp(r['cot_step_prob'][0]) for _, r in epoch_results.items()]
-    probability_reduction = [step_probabilities[0] - s for s in step_probabilities[1:]] 
-    return probability_reduction
 
 a = np.array
 

@@ -1,18 +1,18 @@
-"""
-CoT 词汇类型统计分析脚本
+"""CoT vocabulary-type statistics.
 
-遍历 final_cot 目录下所有 CoT 文本数据，使用 spaCy 进行词性标注，
-按实验定义的词汇类型分组（entity/attribute/action/function/modifier/other）
-统计各类词语的数量及占比，生成饼图和统计报告。
+Walks the CoT text under ``final_cot``, POS-tags it with spaCy, buckets tokens
+into the experiment's vocabulary-type groups (entity / attribute / action /
+function / modifier / other), and writes per-cell and overall pie charts plus
+summary tables.
 
-用法:
+Usage:
     python analyze_cot_vocab_stats.py
 
-输出:
-    - cot_vocab_stats_summary.json   各数据集的统计汇总
-    - cot_vocab_stats_<dataset>_<model>.png   各数据集×模型的饼图
-    - cot_vocab_stats_overall.png    全局汇总饼图
-    - cot_vocab_stats_detail.csv     逐条明细表
+Outputs (under vocab_stats_output/):
+    - cot_vocab_stats_summary.json          per-dataset summary
+    - cot_vocab_stats_<dataset>_<model>.png per-cell pie chart
+    - cot_vocab_stats_overall.png           overall pie chart
+    - cot_vocab_stats_detail.csv            per-step detail rows
 """
 
 import os
@@ -23,23 +23,21 @@ from collections import defaultdict, OrderedDict
 
 import spacy
 import matplotlib
-matplotlib.use('Agg')  # 无GUI环境用非交互后端
+matplotlib.use('Agg')  # non-interactive backend (headless)
 import matplotlib.pyplot as plt
 
-# ============================================================
-# 词汇类型分组定义（与 segment.py 保持一致）
-# ============================================================
+# Vocabulary-type groups (kept in sync with segment_for_more_kinds_of_words.py).
 WORD_TYPE_GROUPS = OrderedDict([
-    ('entity',    {'NOUN', 'PROPN'}),       # 实体词：名词、专有名词
-    ('attribute', {'ADJ', 'NUM'}),          # 属性词：形容词、数词
-    ('action',    {'VERB'}),                # 动作词：动词
-    ('modifier',  {'ADV'}),                 # 修饰词：副词
-    ('function',  {'ADP', 'AUX', 'CCONJ',   # 虚词：介词、助动词、连词、
-                   'DET', 'PART', 'PRON',   #       限定词、小品词、代词、
-                   'SCONJ'}),               #       从属连词
+    ('entity',    {'NOUN', 'PROPN'}),       # nouns / proper nouns
+    ('attribute', {'ADJ', 'NUM'}),          # adjectives / numbers
+    ('action',    {'VERB'}),                # verbs
+    ('modifier',  {'ADV'}),                 # adverbs
+    ('function',  {'ADP', 'AUX', 'CCONJ',   # function words
+                   'DET', 'PART', 'PRON',
+                   'SCONJ'}),
 ])
 
-# 饼图标签（英文，避免中文字体缺失）
+# Pie-chart labels.
 GROUP_DISPLAY = {
     'entity':    'Entity\n(NOUN/PROPN)',
     'attribute': 'Attribute\n(ADJ/NUM)',
@@ -49,19 +47,19 @@ GROUP_DISPLAY = {
     'other':     'Other\n(SYM/PUNCT/...)',
 }
 
-# 饼图配色
+# Pie-chart colors.
 GROUP_COLORS = {
-    'entity':    '#4285F4',   # 蓝
-    'attribute': '#FBBC05',   # 黄
-    'action':    '#EA4335',   # 红
-    'modifier':  '#9C27B0',   # 紫
-    'function':  '#607D8B',   # 灰蓝
-    'other':     '#BDBDBD',   # 浅灰
+    'entity':    '#4285F4',   # blue
+    'attribute': '#FBBC05',   # yellow
+    'action':    '#EA4335',   # red
+    'modifier':  '#9C27B0',   # purple
+    'function':  '#607D8B',   # blue-grey
+    'other':     '#BDBDBD',   # light grey
 }
 
 
 def classify_pos(pos_tag):
-    """根据 POS 标签返回词汇类型分组名。"""
+    """Return the vocabulary-type group for a POS tag, or 'other'."""
     for group_name, tag_set in WORD_TYPE_GROUPS.items():
         if pos_tag in tag_set:
             return group_name
@@ -69,19 +67,14 @@ def classify_pos(pos_tag):
 
 
 def load_cot_data(cot_dir):
-    """加载 final_cot 目录下所有 JSONL 文件。
+    """Load every JSONL file under ``cot_dir``.
 
-    Returns:
-        list of dict, 每项包含:
-            - file_path: 文件路径
-            - dataset: 数据集名
-            - model: 模型名
-            - items: 该文件中的所有 CoT 条目
+    Returns a list of dicts with file_path, dataset, model, items.
     """
     all_data = []
     pattern = os.path.join(cot_dir, '**', '*.jsonl')
     for fpath in sorted(glob.glob(pattern, recursive=True)):
-        # 从路径提取 dataset 和 model
+        # Derive dataset and model from the path.
         parts = fpath.replace(cot_dir, '').strip(os.sep).split(os.sep)
         dataset = parts[0] if len(parts) >= 1 else 'unknown'
         model = os.path.basename(fpath).split('_s=')[0] if '_s=' in fpath else 'unknown'
@@ -103,20 +96,10 @@ def load_cot_data(cot_dir):
 
 
 def analyze_cot_texts(items, nlp):
-    """对一组 CoT 条目进行词汇类型统计。
+    """Count vocabulary-type groups over a list of CoT items.
 
-    Args:
-        items: CoT 条目列表
-        nlp: spaCy 模型
-
-    Returns:
-        dict: {
-            'total_tokens': 总token数,
-            'group_counts': {group: count},
-            'group_ratios': {group: ratio},
-            'per_step_stats': [{step_idx, group_counts, group_ratios}],
-            'per_instance_stats': [{instance_id, group_counts, group_ratios}],
-        }
+    Returns total_tokens, group_counts, group_ratios, per_step_stats,
+    per_instance_stats.
     """
     total_counts = defaultdict(int)
     per_step_stats = []
@@ -124,7 +107,7 @@ def analyze_cot_texts(items, nlp):
     total_tokens = 0
 
     for item in items:
-        # 优先使用 segmented_cot（已分步），否则用完整 cot
+        # Prefer the segmented CoT; fall back to the full CoT.
         if 'segmented_cot' in item and item['segmented_cot']:
             cot_steps = item['segmented_cot']
         elif 'cot' in item:
@@ -172,7 +155,6 @@ def analyze_cot_texts(items, nlp):
             'group_ratios': {g: round(r, 4) for g, r in inst_ratios.items()},
         })
 
-    # 汇总比例
     total_sum = sum(total_counts.values())
     group_ratios = {g: c / total_sum for g, c in total_counts.items()} if total_sum > 0 else {}
 
@@ -186,8 +168,8 @@ def analyze_cot_texts(items, nlp):
 
 
 def plot_pie_chart(group_ratios, title, save_path, total_tokens=0):
-    """生成词汇类型分布饼图。"""
-    # 按固定顺序排列，other 放最后
+    """Render a vocabulary-type distribution pie chart."""
+    # Fixed order, 'other' last.
     ordered_groups = list(WORD_TYPE_GROUPS.keys()) + ['other']
     labels = []
     sizes = []
@@ -201,11 +183,11 @@ def plot_pie_chart(group_ratios, title, save_path, total_tokens=0):
         labels.append(GROUP_DISPLAY.get(g, g))
         sizes.append(ratio)
         colors.append(GROUP_COLORS.get(g, '#999999'))
-        # 实体词和动作词略微突出
+        # Nudge entity and action out slightly.
         explode.append(0.05 if g in ('entity', 'action') else 0)
 
     if not sizes:
-        print(f"[warn] 无数据可绘制: {title}")
+        print(f"[warn] nothing to plot: {title}")
         return
 
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -220,13 +202,11 @@ def plot_pie_chart(group_ratios, title, save_path, total_tokens=0):
         textprops={'fontsize': 10},
     )
 
-    # 调整百分比文字大小
     for autotext in autotexts:
         autotext.set_fontsize(9)
 
     ax.set_title(title, fontsize=13, fontweight='bold', pad=20)
 
-    # 添加图例
     ax.legend(
         wedges, [f'{GROUP_DISPLAY.get(g, g)}: {group_ratios.get(g, 0)*100:.1f}%'
                  for g in ordered_groups if group_ratios.get(g, 0) > 0],
@@ -239,30 +219,30 @@ def plot_pie_chart(group_ratios, title, save_path, total_tokens=0):
     plt.tight_layout()
     fig.savefig(save_path, dpi=150, bbox_inches='tight')
     plt.close(fig)
-    print(f"  饼图已保存: {save_path}")
+    print(f"  saved pie chart: {save_path}")
 
 
 def main():
-    # ---- 配置路径 ----
+    # ---- paths ----
     base_dir = os.path.dirname(os.path.abspath(__file__))
     cot_dir = os.path.join(base_dir, 'final_cot')
     output_dir = os.path.join(base_dir, 'vocab_stats_output')
     os.makedirs(output_dir, exist_ok=True)
 
-    # ---- 加载 spaCy ----
-    print("加载 spaCy 模型...")
+    # ---- spaCy ----
+    print("Loading spaCy model...")
     nlp = spacy.load('en_core_web_sm', disable=['ner', 'parser'])
 
-    # ---- 加载 CoT 数据 ----
-    print(f"扫描 CoT 数据目录: {cot_dir}")
+    # ---- load CoT data ----
+    print(f"Scanning CoT directory: {cot_dir}")
     all_data = load_cot_data(cot_dir)
-    print(f"  找到 {len(all_data)} 个数据文件")
+    print(f"  found {len(all_data)} data files")
 
     if not all_data:
-        print("[error] 未找到任何 CoT 数据文件，请检查路径。")
+        print("[error] no CoT data files found; check the path.")
         return
 
-    # ---- 逐文件分析 ----
+    # ---- analyze per file ----
     summary = {}
     all_detail_rows = []
     global_counts = defaultdict(int)
@@ -274,11 +254,10 @@ def main():
         items = data_info['items']
         key = f"{dataset}/{model}"
 
-        print(f"\n分析: {key} ({len(items)} 条)")
+        print(f"\nAnalyzing: {key} ({len(items)} items)")
 
         result = analyze_cot_texts(items, nlp)
 
-        # 汇总
         summary[key] = {
             'dataset': dataset,
             'model': model,
@@ -288,12 +267,10 @@ def main():
             'group_ratios': result['group_ratios'],
         }
 
-        # 累积全局统计
         for g, c in result['group_counts'].items():
             global_counts[g] += c
         global_total += result['total_tokens']
 
-        # 生成饼图
         safe_name = f"cot_vocab_stats_{dataset}_{model}"
         plot_pie_chart(
             result['group_ratios'],
@@ -302,7 +279,6 @@ def main():
             total_tokens=result['total_tokens'],
         )
 
-        # 收集明细行
         for step_stat in result['per_step_stats']:
             row = {
                 'dataset': dataset,
@@ -316,7 +292,7 @@ def main():
                 row[f'{g}_ratio'] = step_stat['group_ratios'].get(g, 0)
             all_detail_rows.append(row)
 
-    # ---- 全局汇总饼图 ----
+    # ---- overall pie chart ----
     global_ratios = {g: c / global_total for g, c in global_counts.items()} if global_total > 0 else {}
     plot_pie_chart(
         global_ratios,
@@ -325,7 +301,7 @@ def main():
         total_tokens=global_total,
     )
 
-    # ---- 保存统计汇总 JSON ----
+    # ---- write summary JSON ----
     summary['global'] = {
         'total_tokens': global_total,
         'group_counts': dict(global_counts),
@@ -334,9 +310,9 @@ def main():
     summary_path = os.path.join(output_dir, 'cot_vocab_stats_summary.json')
     with open(summary_path, 'w', encoding='utf-8') as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
-    print(f"\n统计汇总已保存: {summary_path}")
+    print(f"\nSummary written: {summary_path}")
 
-    # ---- 保存明细 CSV ----
+    # ---- write detail CSV ----
     if all_detail_rows:
         csv_path = os.path.join(output_dir, 'cot_vocab_stats_detail.csv')
         fieldnames = list(all_detail_rows[0].keys())
@@ -344,14 +320,14 @@ def main():
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(all_detail_rows)
-        print(f"明细数据已保存: {csv_path}")
+        print(f"Detail written: {csv_path}")
 
-    # ---- 打印汇总表 ----
+    # ---- print summary table ----
     print("\n" + "=" * 80)
-    print("  CoT 词汇类型统计汇总")
+    print("  CoT Word Type Statistics")
     print("=" * 80)
 
-    header = f"{'数据集/模型':<30s} {'总token':>8s}"
+    header = f"{'dataset/model':<30s} {'tokens':>8s}"
     for g in list(WORD_TYPE_GROUPS.keys()) + ['other']:
         header += f" {g:>10s}"
     print(header)
@@ -369,7 +345,7 @@ def main():
 
     print("-" * 80)
     g_info = summary['global']
-    line = f"{'全局汇总':<30s} {g_info['total_tokens']:>8d}"
+    line = f"{'overall':<30s} {g_info['total_tokens']:>8d}"
     for g in list(WORD_TYPE_GROUPS.keys()) + ['other']:
         ratio = g_info['group_ratios'].get(g, 0)
         count = g_info['group_counts'].get(g, 0)
@@ -377,8 +353,8 @@ def main():
     print(line)
     print("=" * 80)
 
-    # ---- 按数据集汇总（跨模型聚合） ----
-    print("\n按数据集汇总:")
+    # ---- per-dataset aggregation (across models) ----
+    print("\nBy dataset:")
     dataset_agg = defaultdict(lambda: defaultdict(int))
     for key, info in summary.items():
         if key == 'global':
@@ -389,14 +365,14 @@ def main():
 
     for ds, counts in sorted(dataset_agg.items()):
         total = sum(counts.values())
-        print(f"\n  [{ds}] 总token: {total}")
+        print(f"\n  [{ds}] total tokens: {total}")
         for g in list(WORD_TYPE_GROUPS.keys()) + ['other']:
             c = counts.get(g, 0)
             r = c / total if total > 0 else 0
             bar = '█' * max(1, int(r * 40))
             print(f"    {g:12s}: {c:6d} ({r:5.1%}) {bar}")
 
-    print(f"\n所有输出文件保存在: {output_dir}")
+    print(f"\nAll outputs saved under: {output_dir}")
 
 
 if __name__ == '__main__':

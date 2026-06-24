@@ -38,24 +38,33 @@ def build_args(
     n_verify=None,
     epochs=None,
     log_suffix=None,
-    mmlu=0
+    mmlu=0,
+    method=None,
+    strategy=None,
+    stepwise=None,
+    temperature=None,
+    seed=None,
+    pos=None,
+    ff2=None,
+    atomic=False,
 ):
     model_id = cfg.MODELS[short_model]
 
+    # Every knob falls back to its repro/config.py default when not given.
     return argparse.Namespace(
         model_name=model_id,
         dataset=dataset,
-        method=cfg.METHOD,
-        strategy=cfg.STRATEGY,
-        stepwise=cfg.STEPWISE,
-        temperature=cfg.TEMPERATURE,
-        seed=cfg.SEED,
+        method=method if method is not None else cfg.METHOD,
+        strategy=strategy if strategy is not None else cfg.STRATEGY,
+        stepwise=stepwise if stepwise is not None else cfg.STEPWISE,
+        temperature=temperature if temperature is not None else cfg.TEMPERATURE,
+        seed=seed if seed is not None else cfg.SEED,
         epochs=epochs if epochs is not None else (2 if smoke else cfg.EPOCHS),
         lr=lr,
         rt_lambda=rt_lambda,
         new_cot=False,
-        pos=cfg.POS_FILTER,
-        ff2=cfg.FF2_ONLY,
+        pos=pos if pos is not None else cfg.POS_FILTER,
+        ff2=ff2 if ff2 is not None else cfg.FF2_ONLY,
         ablation=smoke,
         mmlu=mmlu,
         gsm=0,
@@ -63,7 +72,7 @@ def build_args(
         n_unlearn=n_unlearn,
         n_verify=n_verify,
         log_suffix=log_suffix,
-        atomic=False,
+        atomic=atomic,
     )
 
 
@@ -191,7 +200,9 @@ def patched_main(args):
 
 
 def make_cli():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Run the 2x2 reproduction. Flags default to repro/config.py."
+    )
     parser.add_argument("--short_model", choices=list(cfg.MODELS), required=True)
     parser.add_argument("--dataset", choices=cfg.DATASETS, required=True)
     parser.add_argument("--lr", type=float, required=True)
@@ -202,6 +213,23 @@ def make_cli():
     parser.add_argument("--n_verify", type=int, default=None)
     parser.add_argument("--epochs", type=int, default=None)
     parser.add_argument("--log_suffix", type=str, default=None)
+    # Knobs that used to require editing repro/config.py. None => use config default.
+    parser.add_argument("--method", type=str, default=None,
+                        help=f"Unlearning loss (default config: {cfg.METHOD}).")
+    parser.add_argument("--strategy", type=str, default=None,
+                        help=f"CoT segmentation strategy (default config: {cfg.STRATEGY}).")
+    parser.add_argument("--temperature", type=float, default=None,
+                        help=f"CoT generation temperature (default config: {cfg.TEMPERATURE}).")
+    parser.add_argument("--seed", type=int, default=None,
+                        help=f"Random seed (default config: {cfg.SEED}).")
+    parser.add_argument("--stepwise", action=argparse.BooleanOptionalAction, default=None,
+                        help=f"Unlearn one CoT step at a time (default config: {cfg.STEPWISE}).")
+    parser.add_argument("--pos", action=argparse.BooleanOptionalAction, default=None,
+                        help=f"Filter out function words (default config: {cfg.POS_FILTER}).")
+    parser.add_argument("--ff2", action=argparse.BooleanOptionalAction, default=None,
+                        help=f"Tune only the FF2 (down_proj) layer (default config: {cfg.FF2_ONLY}).")
+    parser.add_argument("--atomic", action="store_true",
+                        help="Use atomic-statement segmentation for CoT steps.")
     parser.add_argument(
         "--smoke",
         action="store_true",
@@ -224,5 +252,13 @@ if __name__ == "__main__":
         n_verify=cli_args.n_verify,
         epochs=cli_args.epochs,
         log_suffix=cli_args.log_suffix,
+        method=cli_args.method,
+        strategy=cli_args.strategy,
+        stepwise=cli_args.stepwise,
+        temperature=cli_args.temperature,
+        seed=cli_args.seed,
+        pos=cli_args.pos,
+        ff2=cli_args.ff2,
+        atomic=cli_args.atomic,
     )
     patched_main(run_args)

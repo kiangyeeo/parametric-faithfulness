@@ -1,4 +1,4 @@
-import os, sys, gc, json, copy, random, argparse, subprocess, shutil
+import os, sys, gc, json, copy, random, argparse, shutil
 from pprint import pprint
 
 import torch
@@ -16,31 +16,6 @@ from evaluate import completion_probabilities, answer_probabilities, complete, g
 from data import FRCollator, cot_to_otfd, model_name_dict, load_or_generate_dataset_cots
 from dataload import DATASETS
 from util import set_random_seed
-
-def memory_stats():
-    print(torch.cuda.memory_allocated()/1024**2)
-    print(torch.cuda.memory_reserved()/1024**2)
-
-
-def run_lm_eval(model_path, log_path): 
-  run_cmd = ["lm_eval","--model","hf",
-    "--model_args", "pretrained={}",
-    "--tasks", "mmlu",
-    "--device","cuda:0",
-    "--batch_size", "auto:4",
-    "--num_fewshot=0",
-    ]
-
-  run_cmd[4] = run_cmd[4].format(model_path)
-
-  result = subprocess.run(
-      run_cmd,
-      text=True,  # Return output as a string (not bytes)
-      capture_output=True,  # Capture stdout and stderr
-      check=True  # Raise CalledProcessError if the command fails
-  )
-
-  return result.stdout
 
 def get_linear_schedule_with_warmup(optimizer, num_warmup_steps, num_training_steps, last_epoch=-1):
     def lr_lambda(current_step: int):

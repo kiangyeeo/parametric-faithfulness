@@ -1,11 +1,11 @@
-"""
-repro/config.py
+"""Central defaults for the 2x2 reproduction.
 
-把 2x2 复现的所有超参集中放一处。改实验跑哪几个组合、改样本数、改 lr，
-都只动这个文件，避免到处搜命令行 flag。
+These values are the defaults consumed by ``repro.run_repro``; every field can
+be overridden on the command line (see ``run_repro.make_cli``), so editing this
+file is only needed to change the standing baseline.
 """
 
-# ============== 2x2 子集组合 ==============
+# ============== 2x2 subset ==============
 MODELS = {
     # short_name: huggingface model id
     "Phi-3":      "microsoft/Phi-3-mini-4k-instruct",
@@ -14,8 +14,8 @@ MODELS = {
 
 DATASETS = ["openbook", "sqa"]
 
-# 4 个 (model, dataset, lr) 组合 —— lr 沿用源仓库 const.py 里的 best lr
-# 你们做 λ 消融时，可以在这里直接加多组 lr / λ
+# (short_model, dataset, lr) cells. lr values are the best LRs from the
+# upstream const.py:dataset_model_best_lr table.
 RUNS = [
     # (short_model_name,  dataset,    lr)
     ("Phi-3",      "openbook",  1e-4),
@@ -24,23 +24,23 @@ RUNS = [
     ("LLaMA-3-3B", "sqa",       3e-5),
 ]
 
-# ============== 规模相关 ==============
-# 源仓库默认 250 条；我们 50 条样本，分 20 给 specificity 验证后只剩 30。
-# 这里调成与样本量匹配的数字（也可以做 smoke test 时改 5/10）。
-N_VERIFY  = 20   # specificity 验证集大小（hold-out）
-N_UNLEARN = 230   # 进入 unlearning 的样本数
+# ============== Scale ==============
+# Upstream uses 250 instances; our subset is 50, of which 20 are held out for
+# specificity, leaving 30 for unlearning. Adjust for smoke tests (e.g. 5/10).
+N_VERIFY  = 20    # held-out specificity set size
+N_UNLEARN = 230   # instances entering unlearning
 
-# 复现 + 扩展通用配置
+# Shared reproduction + extension settings
 EPOCHS      = 5
 SEED        = 1001
 TEMPERATURE = 0.0
-METHOD      = "npo_KL"        # 论文主结果用 NPO + KL
-STRATEGY    = "sentencize"    # 必须显式传，源代码默认 'segmented' 是死分支
-STEPWISE    = True            # 逐步 unlearn 每个 CoT step
-POS_FILTER  = True            # 过滤 function words（论文消融最优配置）
-FF2_ONLY    = True            # 只调 down_proj.weight（FF2）层
+METHOD      = "npo_KL"        # paper main result: NPO + KL
+STRATEGY    = "sentencize"    # must be passed explicitly; upstream default 'segmented' is a dead branch
+STEPWISE    = True            # unlearn each CoT step in turn
+POS_FILTER  = True            # filter out function words (best ablation config)
+FF2_ONLY    = True            # tune only down_proj.weight (FF2)
 
-# ============== 路径 ==============
-COT_CACHE_DIR = "final_cot"        # CoT 生成后的缓存（避免每次重跑生成）
-RESULTS_DIR   = "final_results"    # unlearning 结果输出
-SMOKE_DIR     = "smoke_results"    # smoke test 输出（小样本快速验证）
+# ============== Paths ==============
+COT_CACHE_DIR = "final_cot"        # cached generated CoT/noCoT (avoids regeneration)
+RESULTS_DIR   = "final_results"    # unlearning output
+SMOKE_DIR     = "smoke_results"    # smoke-test output (small, fast sanity check)

@@ -1,8 +1,8 @@
-"""跑完 --mmlu 后，把每个 cell 的 ~50 个准确率汇总成 Table 1 的 Gen 数。"""
+"""Aggregate the per-instance --mmlu accuracies into the Table 1 'Gen' number."""
 import glob, json, os
 import numpy as np
 
-BASE_MMLU = {  # base 模型 0-shot MMLU（来自 mmlu.py 注释）
+BASE_MMLU = {  # base-model 0-shot MMLU (from the upstream mmlu.py notes)
     "LLaMA-3-3B": 0.604,
     "Phi-3": 0.699,
 }

@@ -270,26 +270,26 @@ def write_report(rows: list[dict]) -> None:
 
 ## 1. Executive Summary
 
-本实验将目标函数从 `L(theta) = L_NPO,beta(theta) + K_RT(theta)` 扩展为 `L(theta) = L_NPO,beta(theta) + lambda K_RT(theta)`，在固定 2x2 设置上扫描 `lambda in {{0.0, 0.1, 0.3, 1.0, 3.0, 10.0}}`。实验覆盖 Phi-3 与 LLaMA-3-3B，在 OpenBookQA 与 StrategyQA 上共 24 个正式组合；全部结果已写入 `lambda/results/lambda=<value>/...`，没有覆盖 `final_results`。
+This experiment extends the objective from `L(theta) = L_NPO,beta(theta) + K_RT(theta)` to `L(theta) = L_NPO,beta(theta) + lambda K_RT(theta)`, sweeping `lambda in {{0.0, 0.1, 0.3, 1.0, 3.0, 10.0}}` on the fixed 2x2 setup. It covers Phi-3 and LLaMA-3-3B on OpenBookQA and StrategyQA, 24 full combinations in total; all results are written under `lambda/results/lambda=<value>/...` and do not overwrite `final_results`.
 
-结论是：lambda 确实控制 stability-plasticity trade-off，但曲线并不严格单调。较低 lambda 通常更容易提高 answer-level faithfulness 或 answer-change 行为，较高 lambda 通常更保护 specificity；不过最优点明显依赖模型和数据集。以预先设定的“specificity 不比 lambda=1.0 低超过 3 个百分点”为约束，推荐值为：LLaMA/openbook 取 `0.3`，LLaMA/sqa 取 `3.0`，Phi/openbook 取 `0.0`，Phi/sqa 取 `10.0`。
+Conclusion: lambda does control the stability-plasticity trade-off, but the curve is not strictly monotonic. Lower lambda tends to improve answer-level faithfulness or answer-change behavior; higher lambda tends to better preserve specificity; the optimum clearly depends on model and dataset. Under the pre-registered constraint that specificity may not drop more than 3 points below lambda=1.0, the recommended values are: LLaMA/openbook `0.3`, LLaMA/sqa `3.0`, Phi/openbook `0.0`, Phi/sqa `10.0`.
 
 ## 2. Experiment Purpose And Hypotheses
 
-实验目的：检验 retain KL regularization 权重 `lambda` 如何影响 unlearning efficacy、answer-level faithfulness、specificity 与 answer change rate，并判断当前隐式 `lambda=1.0` baseline 是否处在较优 trade-off 区间。
+Purpose: examine how the retain KL regularization weight `lambda` affects unlearning efficacy, answer-level faithfulness, specificity, and answer-change rate, and whether the current implicit `lambda=1.0` baseline sits in a good trade-off region.
 
-实验假设：
+Hypotheses:
 
-- H1: 较低 lambda 减弱 retain regularization，会提高局部可塑性，可能增强 faithfulness/answer change，但带来 specificity 风险。
-- H2: 较高 lambda 增强 retained behavior 稳定性，可能提高 specificity，但压制 unlearning 对 final answer 的影响。
-- H3: 当前 implicit baseline `lambda=1.0` 不一定是最优值。
-- H4: Phi-3 与 LLaMA-3-3B 对 lambda 的敏感性不同。
+- H1: Lower lambda weakens retain regularization, raising local plasticity; it may strengthen faithfulness/answer-change but risks specificity.
+- H2: Higher lambda strengthens retained-behavior stability; it may improve specificity but suppresses unlearning's effect on the final answer.
+- H3: The current implicit baseline `lambda=1.0` is not necessarily optimal.
+- H4: Phi-3 and LLaMA-3-3B differ in their sensitivity to lambda.
 
-结果总体支持这些假设，尤其 H3/H4：四个 model/dataset 组合的推荐 lambda 并不一致。
+The results broadly support these hypotheses, especially H3/H4: the recommended lambda differs across the four model/dataset combinations.
 
 ## 3. Objects, Scope, And Workflow
 
-实验对象与范围：
+Objects and scope:
 
 - Models: Phi-3, LLaMA-3-3B
 - Datasets: OpenBookQA (`openbook`), StrategyQA (`sqa`)
@@ -298,7 +298,7 @@ def write_report(rows: list[dict]) -> None:
 - Scale: `N_UNLEARN=40`, `N_VERIFY=10`, seed `1001`
 - Lambda grid: `0.0, 0.1, 0.3, 1.0, 3.0, 10.0`
 
-流程：先暴露 `--rt_lambda` 并确保结果路径包含 lambda；再 smoke test 验证 schema、路径和显存；随后在 2xA100 上完成完整 sweep；最后生成 JSON/CSV/PNG/SVG 和本综合报告。
+Workflow: first expose `--rt_lambda` and ensure result paths include lambda; then smoke-test schema, paths, and GPU memory; then run the full sweep on 2xA100; finally generate JSON/CSV/PNG/SVG and this merged report.
 
 ## 4. Deliverables
 
@@ -320,56 +320,56 @@ def write_report(rows: list[dict]) -> None:
 
 ## 6. Pareto Frontier Analysis
 
-这里把 specificity 和另一个指标同时视为要最大化的目标。如果某个 lambda 在两个目标上都不优于另一个 lambda，则它被视为 dominated。图中的黑色圆环和连线表示 nondominated lambda。
+Here specificity and a second metric are both treated as objectives to maximize. A lambda is dominated if some other lambda is at least as good on both objectives. Black rings and connecting lines in the figures mark the nondominated lambda values.
 
 {markdown_table(['Model', 'Dataset', 'Recommended lambda', 'Faithfulness/Specificity', 'Faithfulness frontier', 'Efficacy frontier', 'Answer-change frontier'], recommendation_rows)}
 
 ### 6.1 Faithfulness-Specificity Frontier
 
-- LLaMA/openbook: `lambda=0.3` 位于较好的 faithfulness-specificity 折中点，faithfulness 达到 65.00，specificity 只比 baseline 低 0.71。`lambda=10.0` specificity 最高但 faithfulness 下降到 60.00。
-- LLaMA/sqa: `lambda=3.0` 在保持 faithfulness 67.50 的同时获得最高 specificity 92.42，因此比 `lambda=1.0` 更优。
-- Phi/openbook: `lambda=0.0` faithfulness 最高 40.00，但 specificity 低于 baseline；`lambda=3.0` 是保守折中，faithfulness 37.50 且 specificity 94.94。
-- Phi/sqa: faithfulness 对 lambda 不敏感，所有 lambda 都是 25.00；此时前沿主要由 specificity 决定，`lambda=10.0` 最强。
+- LLaMA/openbook: `lambda=0.3` sits at a good faithfulness-specificity trade-off, reaching faithfulness 65.00 with specificity only 0.71 below baseline. `lambda=10.0` has the highest specificity but faithfulness drops to 60.00.
+- LLaMA/sqa: `lambda=3.0` keeps faithfulness at 67.50 while achieving the highest specificity 92.42, so it beats `lambda=1.0`.
+- Phi/openbook: `lambda=0.0` has the highest faithfulness 40.00 but specificity below baseline; `lambda=3.0` is a conservative trade-off, faithfulness 37.50 with specificity 94.94.
+- Phi/sqa: faithfulness is insensitive to lambda, staying at 25.00 for all values; here the frontier is driven mainly by specificity, and `lambda=10.0` is strongest.
 
 ### 6.2 Efficacy-Specificity Frontier
 
-Efficacy 在大部分设置中变化很小，说明 target-step probability reduction 对 lambda 不如 answer-level 指标敏感。Phi/sqa 是例外之一，高 lambda 提高 specificity 的同时 efficacy 从 81.65 降到 80.39，体现了过强 retain penalty 对 forgetting pressure 的抑制。
+Efficacy changes little across most settings, indicating that target-step probability reduction is less sensitive to lambda than the answer-level metrics. Phi/sqa is one exception: raising lambda improves specificity while efficacy falls from 81.65 to 80.39, reflecting how an overly strong retain penalty suppresses forgetting pressure.
 
 ### 6.3 Answer-Change-Specificity Frontier
 
-Answer-change rate 更接近最终 answer behavior。LLaMA/sqa 的 `lambda=0.1` 带来最高 answer-change rate 32.30，但 `lambda=3.0` specificity 更好且 answer-change rate 较低。Phi/openbook 的低 lambda 提高 answer-change，但同时略降 specificity。这个前沿说明 answer-change 不能单独作为最优目标，需要和 specificity 联合解释。
+Answer-change rate is closer to final answer behavior. For LLaMA/sqa, `lambda=0.1` gives the highest answer-change rate 32.30, but `lambda=3.0` has better specificity with a lower answer-change rate. For Phi/openbook, low lambda raises answer-change but slightly lowers specificity. This frontier shows answer-change cannot be the sole optimization target and must be read together with specificity.
 
 ## 7. Interpretation By Combination
 
 ### LLaMA-3-3B / OpenBookQA
 
-`lambda=0.1` 和 `lambda=0.3` 将 faithfulness 从 62.50 提高到 65.00，但 `lambda=0.3` 的 specificity 更高，因此推荐 `0.3`。`lambda=3.0` 和 `10.0` 更稳定，但 faithfulness 没有提升，`10.0` 还出现明显下降。
+`lambda=0.1` and `lambda=0.3` raise faithfulness from 62.50 to 65.00, but `lambda=0.3` has higher specificity, so `0.3` is recommended. `lambda=3.0` and `10.0` are more stable but do not improve faithfulness, and `10.0` shows a clear drop.
 
 ### LLaMA-3-3B / StrategyQA
 
-`lambda=0.0` 到 `3.0` 的 faithfulness 都保持 67.50；`lambda=3.0` specificity 最高，所以它在 faithfulness-specificity 前沿上最干净。`lambda=10.0` faithfulness 降到 62.50，不建议作为默认设置。
+Faithfulness stays at 67.50 from `lambda=0.0` to `3.0`; `lambda=3.0` has the highest specificity, so it is cleanest on the faithfulness-specificity frontier. `lambda=10.0` drops faithfulness to 62.50 and is not recommended as a default.
 
 ### Phi-3 / OpenBookQA
 
-这是低 lambda 最有用的组合。`lambda=0.0` 把 faithfulness 从 35.00 提高到 40.00，specificity 从 94.57 降到 93.86，仍在预设 3 个百分点容忍范围内。如果追求 answer-level faithfulness，可以选 `0.0`；如果偏保守，可以选 `3.0`。
+This is the combination where low lambda helps most. `lambda=0.0` raises faithfulness from 35.00 to 40.00, with specificity dropping from 94.57 to 93.86, still within the pre-set 3-point tolerance. For answer-level faithfulness choose `0.0`; for a conservative setting choose `3.0`.
 
 ### Phi-3 / StrategyQA
 
-lambda 基本不能提高 faithfulness，所有设置都是 25.00。提高 lambda 主要提升 specificity，`lambda=10.0` 达到 97.96，但 efficacy 下降到 80.39。因此这里 lambda 更像 retention knob，而不是 faithfulness 改善手段。
+lambda essentially cannot improve faithfulness; all settings give 25.00. Raising lambda mainly improves specificity, with `lambda=10.0` reaching 97.96 but efficacy dropping to 80.39. Here lambda acts more as a retention knob than a faithfulness lever.
 
 ## 8. Main Conclusions
 
-1. `lambda=1.0` 是合理 baseline，但不是 Pareto 意义下的普遍最优点；在多个组合中它被其他 lambda 支配。
-2. 低 lambda 的收益主要体现在更强 answer-level 可塑性，尤其 Phi/openbook。
-3. 高 lambda 的收益主要体现在 specificity，但过高会降低 faithfulness，尤其 LLaMA/sqa 和 LLaMA/openbook 的 `lambda=10.0`。
-4. Efficacy 本身不足以解释 trade-off，因为它在多数设置中变化很小。
-5. 后续如果扩大实验，不建议继续盲目加大 lambda；更值得围绕 `0.0, 0.3, 1.0, 3.0` 做重复实验、置信区间和更大样本。
+1. `lambda=1.0` is a reasonable baseline but not a universal Pareto optimum; in several combinations it is dominated by other lambda values.
+2. The benefit of low lambda is mainly stronger answer-level plasticity, especially Phi/openbook.
+3. The benefit of high lambda is mainly specificity, but too high reduces faithfulness, especially `lambda=10.0` for LLaMA/sqa and LLaMA/openbook.
+4. Efficacy alone does not explain the trade-off, since it changes little across most settings.
+5. For future scaling, do not keep blindly increasing lambda; it is more worthwhile to run repeats, confidence intervals, and larger samples around `0.0, 0.3, 1.0, 3.0`.
 
 ## 9. Limitations
 
-- 本实验仍是小规模 2x2 reproduction，结论应视为趋势性证据。
-- 没有同时 sweep beta 和 learning rate，因此无法分离 lambda 与优化强度的交互。
-- Pareto 分析只基于汇总指标，没有替代人工 case-level error analysis。
+- This is still a small-scale 2x2 reproduction; conclusions should be read as trend-level evidence.
+- beta and learning rate were not swept jointly, so lambda cannot be disentangled from optimization strength.
+- The Pareto analysis is based only on aggregate metrics and does not replace manual case-level error analysis.
 """
     (ROOT / "report_notes.md").write_text(report, encoding="utf-8")
 

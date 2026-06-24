@@ -1,4 +1,4 @@
-import os, sys, gc, json, copy, random, argparse, subprocess, shutil
+import os, sys, gc, json, copy, random, argparse, shutil
 from pprint import pprint
 
 import torch
@@ -12,35 +12,18 @@ from transformers import AutoModelForCausalLM as CLM
 from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
 
+# Run from anywhere: expose the repo root (evaluate/dataload/util) and this
+# directory (the word-type data/segment extensions) on the import path.
+HERE = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(HERE)
+for _p in (REPO_ROOT, HERE):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
 from evaluate import completion_probabilities, answer_probabilities, complete, generation_fixed_cot
-from data import FRCollator, cot_to_otfd, model_name_dict, load_or_generate_dataset_cots
+from data_for_more_kinds_of_words import FRCollator, cot_to_otfd, model_name_dict, load_or_generate_dataset_cots
 from dataload import DATASETS
 from util import set_random_seed
-
-def memory_stats():
-    print(torch.cuda.memory_allocated()/1024**2)
-    print(torch.cuda.memory_reserved()/1024**2)
-
-
-def run_lm_eval(model_path, log_path): 
-  run_cmd = ["lm_eval","--model","hf",
-    "--model_args", "pretrained={}",
-    "--tasks", "mmlu",
-    "--device","cuda:0",
-    "--batch_size", "auto:4",
-    "--num_fewshot=0",
-    ]
-
-  run_cmd[4] = run_cmd[4].format(model_path)
-
-  result = subprocess.run(
-      run_cmd,
-      text=True,  # Return output as a string (not bytes)
-      capture_output=True,  # Capture stdout and stderr
-      check=True  # Raise CalledProcessError if the command fails
-  )
-
-  return result.stdout
 
 def get_linear_schedule_with_warmup(optimizer, num_warmup_steps, num_training_steps, last_epoch=-1):
     def lr_lambda(current_step: int):
@@ -353,7 +336,7 @@ def unlearn_single(model_id, tokenizer, args, target, step_idx, cots_train, cots
              skip_reason = f"Too few targets ({NT}) for word_type_group='{wt_group}'"
          print(f"SKIPPED: {skip_reason}")
          print("-"*20)
-         # 返回带跳过原因的 None，便于 main 中记录统计
+         # Return None plus a reason so main() can tally skips.
          return {'unlearning_results': None, 'mmlu_results': None, 'skip_reason': skip_reason}
 
     EPOCHS = args.epochs
@@ -577,7 +560,7 @@ def main():
     ids = load_ids(resdir + logfile_name, stepwise=args.stepwise)
     print(f"Ids so far: {len(ids)}")
 
-    # 统计跳过信息
+    # Track how many instance-steps were skipped for lacking target words.
     skip_stats = {'total': 0, 'skipped_no_targets': 0, 'skipped_few_targets': 0, 'completed': 0}
 
     for idx, target in enumerate(cots_train[:N_unlearn]):
@@ -619,13 +602,12 @@ def main():
           results = return_dict['unlearning_results']
 
           if results is None:
-              # 记录跳过原因
               skip_reason = return_dict.get('skip_reason', 'Too few targets')
               if 'No target words' in skip_reason:
                   skip_stats['skipped_no_targets'] += 1
               else:
                   skip_stats['skipped_few_targets'] += 1
-              # 将跳过信息写入单独的日志文件
+              # Record skips in a sidecar log next to the results file.
               skip_log = {
                   'id': target['id'],
                   'step_idx': step_idx,
@@ -647,7 +629,7 @@ def main():
           store(instance_info, resdir+logfile_name)
           del instance_info
 
-    # 打印跳过统计
+    # Print skip statistics
     print("\n" + "=" * 50)
     print(f"  Skip Statistics (word_type_group={args.word_type_group})")
     print("=" * 50)
